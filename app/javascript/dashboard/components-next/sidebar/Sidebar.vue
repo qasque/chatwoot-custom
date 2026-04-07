@@ -257,6 +257,18 @@ const menuItems = computed(() => {
           to: accountScopedRoute('conversation_unattended'),
         },
         {
+          name: 'QuickReplies',
+          label: t('SIDEBAR.QUICK_REPLIES_MENU'),
+          activeOn: ['canned_list'],
+          to: accountScopedRoute('canned_list'),
+        },
+        {
+          name: 'PrivateNotes',
+          label: t('SIDEBAR.PRIVATE_NOTES_MENU'),
+          activeOn: ['home'],
+          to: accountScopedRoute('home'),
+        },
+        {
           name: 'Folders',
           label: t('SIDEBAR.CUSTOM_VIEWS_FOLDER'),
           icon: 'i-lucide-folder',
