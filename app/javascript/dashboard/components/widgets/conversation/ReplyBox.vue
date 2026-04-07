@@ -137,6 +137,7 @@ export default {
       showMentions: false,
       showUserMentions: false,
       showCannedMenu: false,
+      isTaskNote: false,
       showVariablesMenu: false,
       newConversationModalActive: false,
       showArticleSearchPopover: false,
@@ -948,9 +949,22 @@ export default {
       });
       if (canReply || this.isAWhatsAppChannel || this.isAPIInbox)
         this.replyType = mode;
+      if (mode !== REPLY_EDITOR_MODES.NOTE) {
+        this.isTaskNote = false;
+      }
       if (this.isRecordingAudio) {
         this.toggleAudioRecorder();
       }
+    },
+    toggleTaskNote() {
+      if (!this.isPrivate) return;
+      this.isTaskNote = !this.isTaskNote;
+    },
+    withTaskPrefix(message) {
+      if (!this.isPrivate || !this.isTaskNote) return message;
+      if (!message) return '[TASK] ';
+      if (String(message).startsWith('[TASK]')) return message;
+      return `[TASK] ${message}`;
     },
     clearEditorSelection() {
       this.updateEditorSelectionWith = '';
@@ -1136,10 +1150,11 @@ export default {
     },
     getMessagePayload(message) {
       const messageWithQuote = this.getMessageWithQuotedEmailText(message);
+      const messageWithTask = this.withTaskPrefix(messageWithQuote);
 
       let messagePayload = {
         conversationId: this.currentChat.id,
-        message: messageWithQuote,
+        message: messageWithTask,
         private: this.isPrivate,
         sender: this.sender,
       };
@@ -1268,8 +1283,10 @@ export default {
       :is-message-length-reaching-threshold="isMessageLengthReachingThreshold"
       :characters-remaining="charactersRemaining"
       :editor-content="message"
+      :is-task-note="isTaskNote"
       :popout-reply-box="popOutReplyBox"
       @set-reply-mode="setReplyMode"
+      @toggle-task-note="toggleTaskNote"
       @toggle-popout="togglePopout"
       @toggle-copilot="copilot.toggleEditor"
       @open-canned-responses="openCannedResponses"

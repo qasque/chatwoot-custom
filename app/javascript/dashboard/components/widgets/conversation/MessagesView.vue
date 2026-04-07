@@ -11,6 +11,7 @@ import MessageList from 'next/message/MessageList.vue';
 import ConversationLabelSuggestion from './conversation/LabelSuggestion.vue';
 import Banner from 'dashboard/components/ui/Banner.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import NextButton from 'dashboard/components-next/button/Button.vue';
 
 // stores and apis
 import { mapGetters } from 'vuex';
@@ -43,6 +44,7 @@ export default {
     Banner,
     ConversationLabelSuggestion,
     Spinner,
+    NextButton,
   },
   mixins: [inboxMixin],
   setup() {
@@ -84,6 +86,7 @@ export default {
       isProgrammaticScroll: false,
       messageSentSinceOpened: false,
       labelSuggestions: [],
+      showOnlyPrivateNotes: false,
     };
   },
 
@@ -133,9 +136,12 @@ export default {
     getMessages() {
       const messages = this.currentChat.messages || [];
       if (this.isAWhatsAppChannel) {
-        return filterDuplicateSourceMessages(messages);
+        const deduped = filterDuplicateSourceMessages(messages);
+        if (!this.showOnlyPrivateNotes) return deduped;
+        return deduped.filter(message => message.private === true);
       }
-      return messages;
+      if (!this.showOnlyPrivateNotes) return messages;
+      return messages.filter(message => message.private === true);
     },
     readMessages() {
       return getReadMessages(
@@ -235,6 +241,11 @@ export default {
           ? 'CONVERSATION.UNREAD_MESSAGES'
           : 'CONVERSATION.UNREAD_MESSAGE';
       return `${count} ${this.$t(label)}`;
+    },
+    privateNoteFilterLabel() {
+      return this.showOnlyPrivateNotes
+        ? this.$t('CONVERSATION.REPLYBOX.SHOW_ALL_MESSAGES')
+        : this.$t('CONVERSATION.REPLYBOX.SHOW_PRIVATE_NOTES');
     },
     inboxSupportsReplyTo() {
       const incoming = this.inboxHasFeature(INBOX_FEATURES.REPLY_TO);
@@ -437,6 +448,10 @@ export default {
       const payload = useSnakeCase(message);
       await this.$store.dispatch('sendMessageWithData', payload);
     },
+    togglePrivateNotesFilter() {
+      this.showOnlyPrivateNotes = !this.showOnlyPrivateNotes;
+      this.$nextTick(() => this.scrollToBottom());
+    },
   },
 };
 </script>
@@ -457,6 +472,20 @@ export default {
       class="mx-2 mt-2 overflow-hidden rounded-lg"
       :banner-message="$t('CONVERSATION.OLD_INSTAGRAM_INBOX_REPLY_BANNER')"
     />
+    <div class="px-2 pt-2">
+      <NextButton
+        ghost
+        sm
+        icon="i-lucide-lock-keyhole"
+        class="text-n-slate-11"
+        :class="{
+          'bg-n-slate-3 text-n-slate-12': showOnlyPrivateNotes,
+        }"
+        @click="togglePrivateNotesFilter"
+      >
+        {{ privateNoteFilterLabel }}
+      </NextButton>
+    </div>
     <MessageList
       ref="conversationPanelRef"
       class="conversation-panel flex-shrink flex-grow basis-px flex flex-col overflow-y-auto relative h-full m-0 pb-4"

@@ -38,6 +38,13 @@ export default {
       const { private: isPrivate } = this.message;
       return isPrivate;
     },
+    isTaskPrivateNote() {
+      return (
+        this.isMessagePrivate &&
+        typeof this.message.content === 'string' &&
+        this.message.content.startsWith('[TASK]')
+      );
+    },
     parsedLastMessage() {
       const { content_attributes: contentAttributes } = this.message;
       const { email: { subject } = {} } = contentAttributes || {};
@@ -64,7 +71,13 @@ export default {
   <div class="overflow-hidden text-ellipsis whitespace-nowrap">
     <template v-if="showMessageType">
       <fluent-icon
-        v-if="isMessagePrivate"
+        v-if="isTaskPrivateNote"
+        size="16"
+        class="-mt-0.5 align-middle text-n-amber-11 inline-block"
+        icon="check-square"
+      />
+      <fluent-icon
+        v-else-if="isMessagePrivate"
         size="16"
         class="-mt-0.5 align-middle text-n-slate-11 inline-block"
         icon="lock-closed"

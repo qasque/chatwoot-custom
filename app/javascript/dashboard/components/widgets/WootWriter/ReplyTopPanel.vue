@@ -53,12 +53,17 @@ export default {
       type: String,
       default: undefined,
     },
+    isTaskNote: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: [
     'setReplyMode',
     'togglePopout',
     'executeCopilotAction',
     'openCannedResponses',
+    'toggleTaskNote',
   ],
   setup(props, { emit }) {
     const setReplyMode = mode => {
@@ -77,6 +82,9 @@ export default {
           ? REPLY_EDITOR_MODES.NOTE
           : REPLY_EDITOR_MODES.REPLY;
       setReplyMode(newMode);
+    };
+    const handleTaskNoteToggle = () => {
+      emit('toggleTaskNote');
     };
 
     const { captainTasksEnabled } = useCaptain();
@@ -124,6 +132,7 @@ export default {
       showCopilotMenu,
       toggleCopilotMenu,
       handleClickOutside,
+      handleTaskNoteToggle,
     };
   },
   computed: {
@@ -144,6 +153,9 @@ export default {
       return this.charactersRemaining < 0
         ? `${-this.charactersRemaining} ${CHAR_LENGTH_WARNING.NEGATIVE}`
         : `${this.charactersRemaining} ${CHAR_LENGTH_WARNING.UNDER_50}`;
+    },
+    isPrivateMode() {
+      return this.mode === REPLY_EDITOR_MODES.NOTE;
     },
   },
 };
@@ -169,6 +181,20 @@ export default {
         @click="$emit('openCannedResponses')"
       >
         {{ $t('CONVERSATION.REPLYBOX.QUICK_REPLIES') }}
+      </NextButton>
+      <NextButton
+        ghost
+        sm
+        :disabled="disabled || isEditorDisabled || !isPrivateMode"
+        :class="
+          isTaskNote
+            ? 'text-n-amber-11 bg-n-amber-3 hover:enabled:bg-n-amber-4'
+            : 'text-n-slate-11'
+        "
+        icon="i-lucide-list-checks"
+        @click="handleTaskNoteToggle"
+      >
+        {{ $t('CONVERSATION.REPLYBOX.TASK_NOTE') }}
       </NextButton>
     </div>
     <div class="flex items-center mx-4 my-0">
