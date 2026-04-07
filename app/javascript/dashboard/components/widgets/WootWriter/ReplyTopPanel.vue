@@ -54,7 +54,12 @@ export default {
       default: undefined,
     },
   },
-  emits: ['setReplyMode', 'togglePopout', 'executeCopilotAction'],
+  emits: [
+    'setReplyMode',
+    'togglePopout',
+    'executeCopilotAction',
+    'openCannedResponses',
+  ],
   setup(props, { emit }) {
     const setReplyMode = mode => {
       emit('setReplyMode', mode);
@@ -148,12 +153,24 @@ export default {
   <div
     class="flex justify-between gap-2 h-[3.25rem] items-center ltr:pl-3 ltr:pr-2 rtl:pr-3 rtl:pl-2"
   >
-    <EditorModeToggle
-      :mode="mode"
-      :disabled="disabled"
-      :is-reply-restricted="isReplyRestricted"
-      @toggle-mode="handleModeToggle"
-    />
+    <div class="flex items-center gap-2">
+      <EditorModeToggle
+        :mode="mode"
+        :disabled="disabled"
+        :is-reply-restricted="isReplyRestricted"
+        @toggle-mode="handleModeToggle"
+      />
+      <NextButton
+        ghost
+        sm
+        class="text-n-slate-11"
+        :disabled="disabled || isEditorDisabled || mode === REPLY_EDITOR_MODES.NOTE"
+        icon="i-lucide-message-square-quote"
+        @click="$emit('openCannedResponses')"
+      >
+        {{ $t('CONVERSATION.REPLYBOX.QUICK_REPLIES') }}
+      </NextButton>
+    </div>
     <div class="flex items-center mx-4 my-0">
       <div v-if="isMessageLengthReachingThreshold" class="text-xs">
         <span :class="charLengthClass">

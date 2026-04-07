@@ -201,6 +201,8 @@
     "REPLYBOX": {
       "REPLY": "Reply",
       "PRIVATE_NOTE": "Private Note",
+      "QUICK_REPLIES": "Quick replies",
+      "QUICK_REPLIES": "Quick replies",
       "SEND": "Send",
       "CREATE": "Add Note",
       "INSERT_READ_MORE": "Read more",

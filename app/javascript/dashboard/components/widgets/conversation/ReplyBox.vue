@@ -959,6 +959,10 @@ export default {
       this.updateEditorSelectionWith = content;
       this.onFocus();
     },
+    openCannedResponses() {
+      if (this.isOnPrivateNote || this.isEditorDisabled) return;
+      this.addIntoEditor('/');
+    },
     executeCopilotAction(action, data) {
       this.copilot.execute(action, data);
     },
@@ -1268,6 +1272,7 @@ export default {
       @set-reply-mode="setReplyMode"
       @toggle-popout="togglePopout"
       @toggle-copilot="copilot.toggleEditor"
+      @open-canned-responses="openCannedResponses"
       @execute-copilot-action="executeCopilotAction"
     />
     <ArticleSearchPopover

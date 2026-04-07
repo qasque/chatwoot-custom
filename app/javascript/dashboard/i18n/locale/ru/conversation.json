@@ -201,6 +201,7 @@
     "REPLYBOX": {
       "REPLY": "Ответить",
       "PRIVATE_NOTE": "Личная заметка",
+      "QUICK_REPLIES": "Быстрые ответы",
       "SEND": "Отправить",
       "CREATE": "Добавить заметку",
       "INSERT_READ_MORE": "Читать далее",
