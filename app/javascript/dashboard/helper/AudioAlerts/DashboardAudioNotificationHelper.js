@@ -98,17 +98,20 @@ export class DashboardAudioNotificationHelper {
     this.playAudioEvery30Seconds();
   };
 
-  resolveConversationForAudio = message => {
+  /**
+   * WebSocket message often carries a stale `conversation`; store is updated
+   * from conversation.updated. OR both so handoff is detected after AI→operator.
+   */
+  isHandoffActiveForMessage = message => {
     const embedded = message?.conversation;
     const id = message?.conversation_id ?? embedded?.id;
-    if (embedded && embedded.custom_attributes !== undefined) {
-      return embedded;
-    }
-    if (id) {
-      const fromStore = this.store.store.getters.getConversationById(id);
-      if (fromStore) return fromStore;
-    }
-    return embedded || null;
+    const fromStore = id
+      ? this.store.store.getters.getConversationById(id)
+      : null;
+    return (
+      isAiHandoffToOperatorActive(fromStore) ||
+      isAiHandoffToOperatorActive(embedded)
+    );
   };
 
   shouldPlayAlert = () => {
@@ -214,11 +217,8 @@ export class DashboardAudioNotificationHelper {
       typeof window !== 'undefined' &&
       !window.chatwootConfig?.disableAiHandoffAudioGate;
 
-    if (gate) {
-      const conv = this.resolveConversationForAudio(message);
-      if (!isAiHandoffToOperatorActive(conv)) {
-        return;
-      }
+    if (gate && !this.isHandoffActiveForMessage(message)) {
+      return;
     }
 
     if (WindowVisibilityHelper.isWindowVisible()) {
