@@ -20,3 +20,17 @@ export const isAiHandoffToOperatorActive = conversation => {
   }
   return false;
 };
+
+/**
+ * Restrict audio until ai_handoff only when vueapp injected `disableAiHandoffAudioGate`.
+ * Empty `window.chatwootConfig` from other tests must not enable the gate.
+ */
+export const isAiHandoffAudioGateActive = () => {
+  if (typeof window === 'undefined') return false;
+  const cfg = window.chatwootConfig;
+  if (cfg == null || typeof cfg !== 'object') return false;
+  if (!Object.prototype.hasOwnProperty.call(cfg, 'disableAiHandoffAudioGate')) {
+    return false;
+  }
+  return !cfg.disableAiHandoffAudioGate;
+};

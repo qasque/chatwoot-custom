@@ -4,7 +4,10 @@ import {
 } from 'dashboard/constants/permissions';
 import { getUserPermissions } from 'dashboard/helper/permissionsHelper';
 import wootConstants from 'dashboard/constants/globals';
-import { isAiHandoffToOperatorActive } from './AudioMessageHelper';
+import {
+  isAiHandoffAudioGateActive,
+  isAiHandoffToOperatorActive,
+} from './AudioMessageHelper';
 
 class AudioNotificationStore {
   constructor(store) {
@@ -12,11 +15,7 @@ class AudioNotificationStore {
   }
 
   hasUnreadConversation = () => {
-    // Only apply gate when vueapp injected window.chatwootConfig (not Vitest/SSR).
-    const gate =
-      typeof window !== 'undefined' &&
-      Boolean(window.chatwootConfig) &&
-      !window.chatwootConfig.disableAiHandoffAudioGate;
+    const gate = isAiHandoffAudioGateActive();
 
     const mineConversation = this.store.getters.getMineChats({
       assigneeType: 'me',
