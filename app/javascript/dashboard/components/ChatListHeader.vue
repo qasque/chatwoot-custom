@@ -57,9 +57,9 @@ const toggleConversationLayout = () => {
 
 <template>
   <div
-    class="flex items-center justify-between gap-2 px-3 h-[3.25rem]"
+    class="kosmos-frost-header flex items-center justify-between gap-2 px-3 h-[3.25rem]"
     :class="{
-      'border-b border-n-strong': hasAppliedFiltersOrActiveFolders,
+      'kosmos-frost-header--emphasis': hasAppliedFiltersOrActiveFolders,
     }"
   >
     <div class="flex items-center justify-center min-w-0">

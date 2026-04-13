@@ -141,7 +141,7 @@ export default {
     />
 
     <main
-      class="flex flex-1 h-full w-full min-h-0 px-0 overflow-hidden bg-n-surface-1"
+      class="kosmos-app-shell flex flex-1 h-full w-full min-h-0 px-0 overflow-hidden"
     >
       <UpgradePage
         v-show="showUpgradePage"
