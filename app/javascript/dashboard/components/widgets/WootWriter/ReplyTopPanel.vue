@@ -176,7 +176,9 @@ export default {
         ghost
         sm
         class="text-n-slate-11"
-        :disabled="disabled || isEditorDisabled || mode === REPLY_EDITOR_MODES.NOTE"
+        :disabled="
+          disabled || isEditorDisabled || mode === REPLY_EDITOR_MODES.NOTE
+        "
         icon="i-lucide-message-square-quote"
         @click="$emit('openCannedResponses')"
       >
