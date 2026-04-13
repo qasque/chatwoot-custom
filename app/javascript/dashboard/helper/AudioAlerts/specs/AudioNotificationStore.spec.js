@@ -15,6 +15,8 @@ describe('AudioNotificationStore', () => {
   let audioNotificationStore;
 
   beforeEach(() => {
+    // Other specs (or load order) may leave window.chatwootConfig; reset before every test.
+    delete window.chatwootConfig;
     store = {
       getters: {
         getMineChats: vi.fn(),
