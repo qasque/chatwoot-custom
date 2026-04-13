@@ -6,10 +6,10 @@ import { EVENT_TYPES } from 'dashboard/routes/dashboard/settings/profile/constan
 import GlobalStore from 'dashboard/store';
 import AudioNotificationStore from './AudioNotificationStore';
 import {
+  isAiHandoffToOperatorActive,
   isConversationAssignedToMe,
   isConversationUnassigned,
   isMessageFromCurrentUser,
-  isAiHandoffToOperatorActive,
 } from './AudioMessageHelper';
 import WindowVisibilityHelper from './WindowVisibilityHelper';
 import { useAlert } from 'dashboard/composables';
