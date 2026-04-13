@@ -6,13 +6,9 @@
 
 name: Publish Chatwoot EE docker images
 
+# EE пуш в Docker Hub нужны чужие секреты и репозиторий chatwoot/chatwoot.
+# Запускайте вручную, если настроите DOCKERHUB_* и свой DOCKER_REPO.
 on:
-  push:
-    branches:
-      - develop
-      - master
-    tags:
-      - v*
   workflow_dispatch:
 
 env:
