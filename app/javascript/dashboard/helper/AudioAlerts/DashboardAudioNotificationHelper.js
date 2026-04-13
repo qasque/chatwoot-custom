@@ -215,7 +215,8 @@ export class DashboardAudioNotificationHelper {
 
     const gate =
       typeof window !== 'undefined' &&
-      !window.chatwootConfig?.disableAiHandoffAudioGate;
+      Boolean(window.chatwootConfig) &&
+      !window.chatwootConfig.disableAiHandoffAudioGate;
 
     if (gate && !this.isHandoffActiveForMessage(message)) {
       return;

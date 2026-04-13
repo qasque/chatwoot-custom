@@ -27,12 +27,33 @@ describe('AudioNotificationStore', () => {
   });
 
   describe('hasUnreadConversation', () => {
+    afterEach(() => {
+      delete window.chatwootConfig;
+    });
+
     it('should return true when there are unread conversations', () => {
       store.getters.getMineChats.mockReturnValue([
         { id: 1, unread_count: 2 },
         { id: 2, unread_count: 0 },
       ]);
 
+      expect(audioNotificationStore.hasUnreadConversation()).toBe(true);
+    });
+
+    it('when ai-handoff gate is on, requires custom_attributes.ai_handoff for unread', () => {
+      window.chatwootConfig = { disableAiHandoffAudioGate: false };
+      store.getters.getMineChats.mockReturnValue([
+        { id: 1, unread_count: 2, custom_attributes: {} },
+      ]);
+      expect(audioNotificationStore.hasUnreadConversation()).toBe(false);
+
+      store.getters.getMineChats.mockReturnValue([
+        {
+          id: 1,
+          unread_count: 2,
+          custom_attributes: { ai_handoff: true },
+        },
+      ]);
       expect(audioNotificationStore.hasUnreadConversation()).toBe(true);
     });
 
