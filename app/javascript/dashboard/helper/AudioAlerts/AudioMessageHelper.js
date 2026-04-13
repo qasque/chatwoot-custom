@@ -7,7 +7,7 @@ export const isMessageFromCurrentUser = (message, currentUserId) =>
 
 export const AI_HANDOFF_CUSTOM_ATTR = 'ai_handoff';
 
-/** Синхронно с ai-bot: PATCH custom_attributes.ai_handoff при переводе на оператора. */
+/** True when ai-bot set custom_attributes.ai_handoff (human takeover). */
 export const isAiHandoffToOperatorActive = conversation => {
   if (!conversation) return false;
   const custom = conversation.custom_attributes;
