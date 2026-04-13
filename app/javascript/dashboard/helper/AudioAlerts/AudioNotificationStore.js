@@ -12,9 +12,11 @@ class AudioNotificationStore {
   }
 
   hasUnreadConversation = () => {
+    // Only apply gate when vueapp injected window.chatwootConfig (not Vitest/SSR).
     const gate =
       typeof window !== 'undefined' &&
-      !window.chatwootConfig?.disableAiHandoffAudioGate;
+      Boolean(window.chatwootConfig) &&
+      !window.chatwootConfig.disableAiHandoffAudioGate;
 
     const mineConversation = this.store.getters.getMineChats({
       assigneeType: 'me',
