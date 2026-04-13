@@ -9,6 +9,7 @@ import {
   isConversationAssignedToMe,
   isConversationUnassigned,
   isMessageFromCurrentUser,
+  isAiHandoffToOperatorActive,
 } from './AudioMessageHelper';
 import WindowVisibilityHelper from './WindowVisibilityHelper';
 import { useAlert } from 'dashboard/composables';
@@ -95,6 +96,19 @@ export class DashboardAudioNotificationHelper {
     initFaviconSwitcher();
     this.clearRecurringTimer();
     this.playAudioEvery30Seconds();
+  };
+
+  resolveConversationForAudio = message => {
+    const embedded = message?.conversation;
+    const id = message?.conversation_id ?? embedded?.id;
+    if (embedded && embedded.custom_attributes !== undefined) {
+      return embedded;
+    }
+    if (id) {
+      const fromStore = this.store.store.getters.getConversationById(id);
+      if (fromStore) return fromStore;
+    }
+    return embedded || null;
   };
 
   shouldPlayAlert = () => {
@@ -194,6 +208,17 @@ export class DashboardAudioNotificationHelper {
     const { message_type: messageType, private: isPrivate } = message;
     if (messageType !== MESSAGE_TYPE.INCOMING && !isPrivate) {
       return;
+    }
+
+    const gate =
+      typeof window !== 'undefined' &&
+      !window.chatwootConfig?.disableAiHandoffAudioGate;
+
+    if (gate) {
+      const conv = this.resolveConversationForAudio(message);
+      if (!isAiHandoffToOperatorActive(conv)) {
+        return;
+      }
     }
 
     if (WindowVisibilityHelper.isWindowVisible()) {
