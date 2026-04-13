@@ -40,6 +40,12 @@ describe('AudioNotificationStore', () => {
       expect(audioNotificationStore.hasUnreadConversation()).toBe(true);
     });
 
+    it('does not enable gate when chatwootConfig exists but omits disableAiHandoffAudioGate', () => {
+      window.chatwootConfig = { hostURL: '' };
+      store.getters.getMineChats.mockReturnValue([{ id: 1, unread_count: 2 }]);
+      expect(audioNotificationStore.hasUnreadConversation()).toBe(true);
+    });
+
     it('when ai-handoff gate is on, requires custom_attributes.ai_handoff for unread', () => {
       window.chatwootConfig = { disableAiHandoffAudioGate: false };
       store.getters.getMineChats.mockReturnValue([

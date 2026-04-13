@@ -6,6 +6,7 @@ import { EVENT_TYPES } from 'dashboard/routes/dashboard/settings/profile/constan
 import GlobalStore from 'dashboard/store';
 import AudioNotificationStore from './AudioNotificationStore';
 import {
+  isAiHandoffAudioGateActive,
   isAiHandoffToOperatorActive,
   isConversationAssignedToMe,
   isConversationUnassigned,
@@ -213,10 +214,7 @@ export class DashboardAudioNotificationHelper {
       return;
     }
 
-    const gate =
-      typeof window !== 'undefined' &&
-      Boolean(window.chatwootConfig) &&
-      !window.chatwootConfig.disableAiHandoffAudioGate;
+    const gate = isAiHandoffAudioGateActive();
 
     if (gate && !this.isHandoffActiveForMessage(message)) {
       return;
