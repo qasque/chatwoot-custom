@@ -4,6 +4,7 @@ import {
 } from 'dashboard/constants/permissions';
 import { getUserPermissions } from 'dashboard/helper/permissionsHelper';
 import wootConstants from 'dashboard/constants/globals';
+import { isAiHandoffToOperatorActive } from './AudioMessageHelper';
 
 class AudioNotificationStore {
   constructor(store) {
@@ -11,12 +12,22 @@ class AudioNotificationStore {
   }
 
   hasUnreadConversation = () => {
+    const gate =
+      typeof window !== 'undefined' &&
+      !window.chatwootConfig?.disableAiHandoffAudioGate;
+
     const mineConversation = this.store.getters.getMineChats({
       assigneeType: 'me',
       status: 'open',
     });
 
-    return mineConversation.some(conv => conv.unread_count > 0);
+    return mineConversation.some(conv => {
+      if (conv.unread_count <= 0) return false;
+      if (gate && !isAiHandoffToOperatorActive(conv)) {
+        return false;
+      }
+      return true;
+    });
   };
 
   isMessageFromPendingConversation = (message = {}) => {
