@@ -4,7 +4,7 @@ import { useMapGetter } from 'dashboard/composables/store';
 
 const attrs = useAttrs();
 const globalConfig = useMapGetter('globalConfig/get');
-const defaultLogoThumbnail = '/brand-assets/logo_thumbnail.svg';
+const defaultLogoThumbnail = '/brand-assets/kosmos-orbit-mark.png';
 </script>
 
 <template>
