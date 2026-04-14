@@ -4,6 +4,7 @@ import { useMapGetter } from 'dashboard/composables/store';
 
 const attrs = useAttrs();
 const globalConfig = useMapGetter('globalConfig/get');
+const defaultLogoThumbnail = '/brand-assets/logo_thumbnail.svg';
 </script>
 
 <template>
@@ -16,7 +17,7 @@ const globalConfig = useMapGetter('globalConfig/get');
   <img
     v-else
     v-bind="attrs"
-    src="/brand-assets/logo_thumbnail.svg"
+    :src="defaultLogoThumbnail"
     alt="Космос Чат"
   />
 </template>
