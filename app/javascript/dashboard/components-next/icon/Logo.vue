@@ -14,10 +14,5 @@ const defaultLogoThumbnail = '/brand-assets/kosmos-orbit-mark.png';
     :src="globalConfig.logoThumbnail"
     alt=""
   />
-  <img
-    v-else
-    v-bind="attrs"
-    :src="defaultLogoThumbnail"
-    alt="Космос Чат"
-  />
+  <img v-else v-bind="attrs" :src="defaultLogoThumbnail" alt="Космос Чат" />
 </template>
