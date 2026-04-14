@@ -36,6 +36,10 @@ export default {
       type: String,
       default: '',
     },
+    noteFilter: {
+      type: String,
+      default: '',
+    },
     foldersId: {
       type: [String, Number],
       default: 0,
@@ -55,6 +59,7 @@ export default {
     :folders-id="foldersId"
     :chat="source"
     :conversation-type="conversationType"
+    :note-filter="noteFilter"
     :selected="isConversationSelected(source.id)"
     :show-assignee="showAssignee"
     enable-context-menu

@@ -11,6 +11,7 @@ export const conversationUrl = ({
   teamId,
   conversationType = '',
   foldersId,
+  noteFilter,
 }) => {
   let url = `accounts/${accountId}/conversations/${id}`;
   if (activeInbox) {
@@ -28,6 +29,9 @@ export const conversationUrl = ({
   } else if (conversationType === 'unattended') {
     url = `accounts/${accountId}/unattended/conversations/${id}`;
   }
+  if (noteFilter) {
+    return `${url}?${new URLSearchParams({ noteFilter })}`;
+  }
   return url;
 };
 
@@ -38,6 +42,7 @@ export const conversationListPageURL = ({
   label,
   teamId,
   customViewId,
+  noteFilter,
 }) => {
   let url = `accounts/${accountId}/dashboard`;
   if (label) {
@@ -55,7 +60,7 @@ export const conversationListPageURL = ({
     };
     url = `accounts/${accountId}/${urlMap[conversationType]}`;
   }
-  return frontendURL(url);
+  return frontendURL(url, noteFilter ? { noteFilter } : undefined);
 };
 
 export const isValidURL = value => {

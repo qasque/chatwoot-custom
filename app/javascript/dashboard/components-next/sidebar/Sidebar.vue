@@ -265,8 +265,14 @@ const menuItems = computed(() => {
         {
           name: 'PrivateNotes',
           label: t('SIDEBAR.PRIVATE_NOTES_MENU'),
-          activeOn: ['home'],
-          to: accountScopedRoute('home'),
+          activeOn: ['home', 'inbox_conversation'],
+          to: accountScopedRoute('home', {}, { noteFilter: 'private' }),
+        },
+        {
+          name: 'TaskNotes',
+          label: t('SIDEBAR.TASKS_MENU'),
+          activeOn: ['home', 'inbox_conversation'],
+          to: accountScopedRoute('home', {}, { noteFilter: 'task' }),
         },
         {
           name: 'Folders',

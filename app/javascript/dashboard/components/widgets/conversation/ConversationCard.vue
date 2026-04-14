@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { getLastMessage } from 'dashboard/helper/conversationHelper';
 import { frontendURL, conversationUrl } from 'dashboard/helper/URLHelper';
@@ -24,6 +25,7 @@ const props = defineProps({
   foldersId: { type: [String, Number], default: 0 },
   showAssignee: { type: Boolean, default: false },
   conversationType: { type: String, default: '' },
+  noteFilter: { type: String, default: '' },
   selected: { type: Boolean, default: false },
   compact: { type: Boolean, default: false },
   enableContextMenu: { type: Boolean, default: false },
@@ -46,6 +48,8 @@ const emit = defineEmits([
 ]);
 
 const router = useRouter();
+const route = useRoute();
+const { t } = useI18n();
 const store = useStore();
 
 const hovered = ref(false);
@@ -136,6 +140,15 @@ const messagePreviewClass = computed(() => {
   ];
 });
 
+const isTaskConversation = computed(() => {
+  const message = lastMessageInChat.value;
+  return (
+    message?.private === true &&
+    typeof message?.content === 'string' &&
+    message.content.trim().startsWith('[TASK]')
+  );
+});
+
 const conversationPath = computed(() => {
   return frontendURL(
     conversationUrl({
@@ -146,6 +159,7 @@ const conversationPath = computed(() => {
       teamId: props.teamId,
       conversationType: props.conversationType,
       foldersId: props.foldersId,
+      noteFilter: props.noteFilter || route.query.noteFilter,
     })
   );
 });
@@ -327,7 +341,13 @@ const deleteConversation = () => {
         class="conversation--user text-sm my-0 mx-2 capitalize pt-0.5 text-ellipsis overflow-hidden whitespace-nowrap flex-1 min-w-0 ltr:pr-16 rtl:pl-16 text-n-slate-12"
         :class="hasUnread ? 'font-semibold' : 'font-medium'"
       >
-        {{ currentContact.name }}
+        <span>{{ currentContact.name }}</span>
+        <span
+          v-if="isTaskConversation"
+          class="inline-flex items-center ltr:ml-1 rtl:mr-1 px-1 py-0.5 rounded text-[10px] leading-none font-semibold uppercase text-n-amber-12 bg-n-amber-3"
+        >
+          {{ t('CONVERSATION.REPLYBOX.TASK_NOTE') }}
+        </span>
       </h4>
       <VoiceCallStatus
         v-if="voiceCallData.status"
