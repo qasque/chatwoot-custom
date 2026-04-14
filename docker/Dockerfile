@@ -81,9 +81,9 @@ COPY . /app
 RUN mkdir -p /app/log
 
 # generate production assets if production environment
-# Rails validates minimum secret length in production mode.
+# Use Rails dummy secret for CI image builds (no runtime secret required at build time).
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-  SECRET_KEY_BASE=precompile_placeholder_key_base_minimum_length_32_chars RAILS_LOG_TO_STDOUT=enabled bundle exec rake assets:precompile \
+  SECRET_KEY_BASE_DUMMY=1 RAILS_LOG_TO_STDOUT=enabled bundle exec rake assets:precompile \
   && rm -rf spec node_modules tmp/cache; \
   fi
 
