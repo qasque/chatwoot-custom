@@ -54,6 +54,7 @@ import languages from 'dashboard/components/widgets/conversation/advancedFilterI
 import countries from 'shared/constants/countries';
 import { generateValuesForEditCustomViews } from 'dashboard/helper/customViewsHelper';
 import { conversationListPageURL } from '../helper/URLHelper';
+import { getLastMessage } from 'dashboard/helper/conversationHelper';
 import {
   isOnMentionsView,
   isOnUnattendedView,
@@ -204,6 +205,12 @@ const assigneeTabItems = computed(() => {
   }));
 });
 
+const noteFilterMode = computed(() => {
+  const mode = route.query.noteFilter;
+  if (mode === 'task' || mode === 'private') return mode;
+  return '';
+});
+
 const showAssigneeInConversationCard = computed(() => {
   return (
     hasAppliedFiltersOrActiveFolders.value ||
@@ -242,12 +249,6 @@ const activeAssigneeTabCount = computed(() => {
     item => item.key === activeAssigneeTab.value
   ).count;
   return count;
-});
-
-const noteFilterMode = computed(() => {
-  const mode = route.query.noteFilter;
-  if (mode === 'task' || mode === 'private') return mode;
-  return '';
 });
 
 const isTaskPrivateNoteMessage = message => {
