@@ -21,6 +21,7 @@ ENV RAILS_ENV ${RAILS_ENV}
 
 ARG NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 ENV NODE_OPTIONS ${NODE_OPTIONS}
+ARG SKIP_ASSET_PRECOMPILE=false
 
 ENV BUNDLE_PATH="/gems"
 
@@ -81,8 +82,8 @@ COPY . /app
 RUN mkdir -p /app/log
 
 # generate production assets if production environment
-# Use Rails dummy secret for CI image builds (no runtime secret required at build time).
-RUN if [ "$RAILS_ENV" = "production" ]; then \
+# CI may opt out via SKIP_ASSET_PRECOMPILE=true to avoid flaky precompile failures.
+RUN if [ "$RAILS_ENV" = "production" ] && [ "$SKIP_ASSET_PRECOMPILE" != "true" ]; then \
   SECRET_KEY_BASE_DUMMY=1 RAILS_LOG_TO_STDOUT=enabled bundle exec rake assets:precompile \
   && rm -rf spec node_modules tmp/cache; \
   fi
