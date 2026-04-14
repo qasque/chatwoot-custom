@@ -207,7 +207,8 @@ const assigneeTabItems = computed(() => {
 const showAssigneeInConversationCard = computed(() => {
   return (
     hasAppliedFiltersOrActiveFolders.value ||
-    activeAssigneeTab.value === wootConstants.ASSIGNEE_TYPE.ALL
+    activeAssigneeTab.value === wootConstants.ASSIGNEE_TYPE.ALL ||
+    noteFilterMode.value === 'task'
   );
 });
 
@@ -242,6 +243,30 @@ const activeAssigneeTabCount = computed(() => {
   ).count;
   return count;
 });
+
+const noteFilterMode = computed(() => {
+  const mode = route.query.noteFilter;
+  if (mode === 'task' || mode === 'private') return mode;
+  return '';
+});
+
+const isTaskPrivateNoteMessage = message => {
+  if (!message || message.private !== true) return false;
+  return (
+    typeof message.content === 'string' &&
+    message.content.trim().startsWith('[TASK]')
+  );
+};
+
+const hasTaskPrivateNote = conversation => {
+  const message = getLastMessage(conversation);
+  return isTaskPrivateNoteMessage(message);
+};
+
+const hasPrivateNote = conversation => {
+  const message = getLastMessage(conversation);
+  return message?.private === true;
+};
 
 const conversationListPagination = computed(() => {
   const conversationsPerPage = 25;
@@ -305,6 +330,12 @@ const pageTitle = computed(() => {
   if (props.conversationType === 'unattended') {
     return t('CHAT_LIST.UNATTENDED_HEADING');
   }
+  if (noteFilterMode.value === 'task') {
+    return t('SIDEBAR.TASKS_MENU');
+  }
+  if (noteFilterMode.value === 'private') {
+    return t('SIDEBAR.PRIVATE_NOTES_MENU');
+  }
   if (hasActiveFolders.value) {
     return activeFolder.value.name;
   }
@@ -332,6 +363,23 @@ const conversationList = computed(() => {
     localConversationList = localConversationList.filter(conversation => {
       return matchesFilters(conversation, payload);
     });
+  }
+
+  if (noteFilterMode.value === 'task') {
+    localConversationList = localConversationList
+      .filter(hasTaskPrivateNote)
+      .sort((a, b) => {
+        const assigneeA = a?.meta?.assignee?.name || '';
+        const assigneeB = b?.meta?.assignee?.name || '';
+        const byAssignee = assigneeA.localeCompare(assigneeB);
+        if (byAssignee !== 0) return byAssignee;
+        return (b.last_activity_at || 0) - (a.last_activity_at || 0);
+      });
+  } else if (noteFilterMode.value === 'private') {
+    localConversationList = localConversationList.filter(
+      conversation =>
+        hasPrivateNote(conversation) && !hasTaskPrivateNote(conversation)
+    );
   }
 
   return localConversationList;
@@ -649,6 +697,7 @@ function redirectToConversationList() {
       inboxId,
       label,
       teamId,
+      noteFilter: noteFilterMode.value || undefined,
     })
   );
 }
@@ -962,6 +1011,7 @@ watch(conversationFilters, (newVal, oldVal) => {
           :team-id="teamId"
           :folders-id="foldersId"
           :conversation-type="conversationType"
+          :note-filter="noteFilterMode"
           :show-assignee="showAssigneeInConversationCard"
           :data-index="index"
           @select-conversation="selectConversation"
