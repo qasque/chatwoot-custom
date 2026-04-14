@@ -110,6 +110,7 @@ jobs:
           outputs: type=image,name=${{ env.DOCKER_REPO }},push-by-digest=true,name-canonical=true,push=true
           build-args: |
             NODE_OPTIONS=${{ env.DOCKER_NODE_OPTIONS }}
+            SKIP_ASSET_PRECOMPILE=true
 
       - name: Export digest
         run: |
