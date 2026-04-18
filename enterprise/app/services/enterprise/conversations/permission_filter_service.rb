@@ -18,9 +18,7 @@ module Enterprise::Conversations::PermissionFilterService
   def filter_by_permissions(permissions)
     # Permission-based filtering with hierarchy
     # conversation_manage > conversation_unassigned_manage > conversation_participating_manage
-    if permissions.include?('conversation_manage')
-      accessible_conversations
-    elsif tasks_conversation_list? && agent_inbox_conversation_access?(permissions)
+    if full_inbox_conversation_scope?(permissions)
       accessible_conversations
     elsif permissions.include?('conversation_unassigned_manage')
       filter_unassigned_and_mine
@@ -29,6 +27,11 @@ module Enterprise::Conversations::PermissionFilterService
     else
       Conversation.none
     end
+  end
+
+  def full_inbox_conversation_scope?(permissions)
+    permissions.include?('conversation_manage') ||
+      (tasks_conversation_list? && agent_inbox_conversation_access?(permissions))
   end
 
   def tasks_conversation_list?

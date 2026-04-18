@@ -34,9 +34,9 @@ class Api::V1::Accounts::OutageAutoReplyController < Api::V1::Accounts::BaseCont
       cfg['agent_id'] = current_user.id if cfg['enabled']
     end
     cfg['message'] = permitted[:message].to_s if permitted.key?(:message)
-    if permitted.key?(:inbox_ids)
-      cfg['inbox_ids'] = permitted[:inbox_ids].to_a.map(&:to_i).uniq
-    end
+    return unless permitted.key?(:inbox_ids)
+
+    cfg['inbox_ids'] = permitted[:inbox_ids].to_a.map(&:to_i).uniq
   end
 
   def enabled_without_content?(cfg)

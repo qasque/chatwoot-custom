@@ -3,9 +3,7 @@ class Api::V1::Accounts::OutageBroadcastController < Api::V1::Accounts::BaseCont
     inbox_ids = outage_broadcast_params[:inbox_ids].to_a.map(&:to_i).uniq
     content = outage_broadcast_params[:content].to_s.strip
 
-    if inbox_ids.blank? || content.blank?
-      return render json: { error: 'inbox_ids and content are required' }, status: :unprocessable_entity
-    end
+    return render json: { error: 'inbox_ids and content are required' }, status: :unprocessable_entity if inbox_ids.blank? || content.blank?
 
     OutageBroadcastJob.perform_later(Current.account.id, inbox_ids, content, Current.user.id)
 

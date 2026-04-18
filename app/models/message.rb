@@ -44,7 +44,7 @@ class Message < ApplicationRecord
   include MessageFilterHelpers
   include Liquidable
   NUMBER_OF_PERMITTED_ATTACHMENTS = 15
-  REOPENED_FROM_RESOLVED_KEY = 'reopened_from_resolved'
+  REOPENED_FROM_RESOLVED_KEY = 'reopened_from_resolved'.freeze
 
   TEMPLATE_PARAMS_SCHEMA = {
     'type': 'object',
@@ -408,7 +408,8 @@ class Message < ApplicationRecord
 
   def mark_reopened_from_resolved!
     attrs = additional_attributes.stringify_keys.merge(REOPENED_FROM_RESOLVED_KEY => true)
-    update_columns(additional_attributes: attrs, updated_at: Time.current)
+    # Intentional: avoid callbacks while reopen callback chain is running
+    update_columns(additional_attributes: attrs, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
   end
 
   def mark_pending_conversation_as_open_for_human_response

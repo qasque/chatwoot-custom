@@ -28,10 +28,10 @@ class OutageAutoReplyJob < ApplicationJob
 
   def send_outage_reply(conversation, trigger_message, agent, agent_id, content)
     conversation.with_lock do
-      return if duplicate_outage_reply?(conversation, trigger_message)
-
-      Conversations::AssignmentService.new(conversation: conversation, assignee_id: agent_id).perform
-      Messages::MessageBuilder.new(agent, conversation, outage_reply_params(content)).perform
+      unless duplicate_outage_reply?(conversation, trigger_message)
+        Conversations::AssignmentService.new(conversation: conversation, assignee_id: agent_id).perform
+        Messages::MessageBuilder.new(agent, conversation, outage_reply_params(content)).perform
+      end
     end
   end
 
