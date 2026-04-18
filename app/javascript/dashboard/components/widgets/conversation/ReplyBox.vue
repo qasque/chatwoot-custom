@@ -958,7 +958,14 @@ export default {
       }
     },
     toggleTaskNote() {
-      if (!this.isPrivate) return;
+      if (!this.isPrivate) {
+        this.setReplyMode(REPLY_EDITOR_MODES.NOTE);
+        if (!this.isPrivate) {
+          this.replyType = REPLY_EDITOR_MODES.NOTE;
+        }
+        this.isTaskNote = true;
+        return;
+      }
       this.isTaskNote = !this.isTaskNote;
     },
     withTaskPrefix(message) {

@@ -187,7 +187,7 @@ export default {
       <NextButton
         ghost
         sm
-        :disabled="disabled || isEditorDisabled || !isPrivateMode"
+        :disabled="disabled || isEditorDisabled"
         :class="
           isTaskNote
             ? 'text-n-amber-11 bg-n-amber-3 hover:enabled:bg-n-amber-4'
