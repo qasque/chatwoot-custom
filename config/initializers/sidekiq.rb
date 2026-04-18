@@ -40,6 +40,13 @@ Rails.application.reloader.to_prepare do
   if File.exist?(schedule_file) && Sidekiq.server?
     schedule = YAML.load_file(schedule_file)
 
+    support_job = schedule['support_daily_telegram_report_job'] || {}
+    support_job['cron'] = ENV.fetch('REPORT_CRON', support_job['cron'] || '0 9 * * *')
+    support_job['tz'] = ENV.fetch('REPORT_TIMEZONE', support_job['tz'] || 'Europe/Moscow')
+    support_job['class'] ||= 'Support::DailyTelegramReportJob'
+    support_job['queue'] ||= 'scheduled_jobs'
+    schedule['support_daily_telegram_report_job'] = support_job
+
     # Cron entries removed from schedule.yml but possibly still in Redis
     # with source:'dynamic' (predating the source tag). load_from_hash!
     # only cleans up source:'schedule' entries, so these need explicit removal.

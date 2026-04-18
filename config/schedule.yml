@@ -68,3 +68,10 @@ remove_orphan_conversations_job:
   cron: '0 */12 * * *'
   class: 'Internal::RemoveOrphanConversationsJob'
   queue: housekeeping
+
+# executed daily at 09:00 Europe/Moscow; cron/timezone can be overridden by REPORT_CRON/REPORT_TIMEZONE
+support_daily_telegram_report_job:
+  cron: '0 9 * * *'
+  tz: 'Europe/Moscow'
+  class: 'Support::DailyTelegramReportJob'
+  queue: scheduled_jobs
