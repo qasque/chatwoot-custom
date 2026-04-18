@@ -16,6 +16,7 @@ const props = defineProps({
   isOnExpandedLayout: { type: Boolean, required: true },
   conversationStats: { type: Object, required: true },
   isListLoading: { type: Boolean, required: true },
+  showNewTaskButton: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
@@ -24,6 +25,7 @@ const emit = defineEmits([
   'resetFilters',
   'basicFilterChange',
   'filtersModal',
+  'newTask',
 ]);
 
 const { uiSettings, updateUISettings } = useUISettings();
@@ -86,6 +88,15 @@ const toggleConversationLayout = () => {
       </span>
     </div>
     <div class="flex items-center gap-1">
+      <NextButton
+        v-if="showNewTaskButton"
+        v-tooltip.top-end="$t('CONVERSATION.QUICK_TASK.TOOLTIP')"
+        icon="i-lucide-list-todo"
+        color="blue"
+        xs
+        faded
+        @click="emit('newTask')"
+      />
       <template v-if="hasAppliedFilters && !hasActiveFolders">
         <div class="relative">
           <NextButton

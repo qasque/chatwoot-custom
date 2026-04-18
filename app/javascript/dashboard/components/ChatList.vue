@@ -55,6 +55,8 @@ import countries from 'shared/constants/countries';
 import { generateValuesForEditCustomViews } from 'dashboard/helper/customViewsHelper';
 import { conversationListPageURL } from '../helper/URLHelper';
 import { getLastMessage } from 'dashboard/helper/conversationHelper';
+import { isTaskPrivateNoteMessage } from 'dashboard/helper/taskNotes';
+import QuickTaskModal from 'dashboard/components/tasks/QuickTaskModal.vue';
 import {
   isOnMentionsView,
   isOnUnattendedView,
@@ -206,10 +208,22 @@ const assigneeTabItems = computed(() => {
 });
 
 const noteFilterMode = computed(() => {
+  if (
+    route.name === 'conversation_tasks' ||
+    route.name === 'conversation_through_tasks'
+  ) {
+    return 'task';
+  }
   const mode = route.query.noteFilter;
   if (mode === 'task' || mode === 'private') return mode;
   return '';
 });
+
+const isTasksRoute = computed(
+  () =>
+    route.name === 'conversation_tasks' ||
+    route.name === 'conversation_through_tasks'
+);
 
 const showAssigneeInConversationCard = computed(() => {
   return (
@@ -251,14 +265,6 @@ const activeAssigneeTabCount = computed(() => {
   return count;
 });
 
-const isTaskPrivateNoteMessage = message => {
-  if (!message || message.private !== true) return false;
-  return (
-    typeof message.content === 'string' &&
-    message.content.trim().startsWith('[TASK]')
-  );
-};
-
 const hasTaskPrivateNote = conversation => {
   const message = getLastMessage(conversation);
   return isTaskPrivateNoteMessage(message);
@@ -292,7 +298,7 @@ const conversationListPagination = computed(() => {
 const conversationFilters = computed(() => {
   return {
     inboxId: props.conversationInbox ? props.conversationInbox : undefined,
-    assigneeType: activeAssigneeTab.value,
+    assigneeType: isTasksRoute.value ? 'all' : activeAssigneeTab.value,
     status: activeStatus.value,
     sortBy: activeSortBy.value,
     page: conversationListPagination.value,
@@ -858,6 +864,11 @@ onMounted(() => {
 
 const deleteConversationDialogRef = ref(null);
 const selectedConversationId = ref(null);
+const quickTaskModalRef = ref(null);
+
+function openQuickTask() {
+  quickTaskModalRef.value?.open();
+}
 
 async function deleteConversation() {
   try {
@@ -940,11 +951,13 @@ watch(conversationFilters, (newVal, oldVal) => {
       :is-on-expanded-layout="isOnExpandedLayout"
       :conversation-stats="conversationStats"
       :is-list-loading="chatListLoading && !conversationList.length"
+      :show-new-task-button="noteFilterMode === 'task'"
       @add-folders="onClickOpenAddFoldersModal"
       @delete-folders="onClickOpenDeleteFoldersModal"
       @filters-modal="onToggleAdvanceFiltersModal"
       @reset-filters="resetAndFetchData"
       @basic-filter-change="onBasicFilterChange"
+      @new-task="openQuickTask"
     />
 
     <TeleportWithDirection
@@ -969,7 +982,7 @@ watch(conversationFilters, (newVal, oldVal) => {
     />
 
     <ChatTypeTabs
-      v-if="!hasAppliedFiltersOrActiveFolders"
+      v-if="!hasAppliedFiltersOrActiveFolders && !isTasksRoute"
       :items="assigneeTabItems"
       :active-tab="activeAssigneeTab"
       is-compact
@@ -1064,5 +1077,6 @@ watch(conversationFilters, (newVal, oldVal) => {
       ref="resolveAttributesModalRef"
       @submit="handleResolveWithAttributes"
     />
+    <QuickTaskModal ref="quickTaskModalRef" @created="resetAndFetchData" />
   </div>
 </template>

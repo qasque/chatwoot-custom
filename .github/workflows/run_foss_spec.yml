@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Separate linting jobs for faster feedback
+  # Отдельный workflow: .github/workflows/frontend-fe.yml (eslint + vitest без дубля pnpm install)
   lint-backend:
     runs-on: ubuntu-latest
     steps:
@@ -20,35 +20,6 @@ jobs:
           bundler-cache: true
       - name: Run Rubocop
         run: bundle exec rubocop --parallel
-
-  lint-frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: 'pnpm'
-      - name: Install pnpm dependencies
-        run: pnpm i
-      - name: Run ESLint
-        run: pnpm run eslint
-
-  # Frontend tests run in parallel with backend
-  frontend-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: 'pnpm'
-      - name: Install pnpm dependencies
-        run: pnpm i
-      - name: Run frontend tests
-        run: pnpm run test:coverage
 
   # Backend tests with parallelization
   backend-tests:

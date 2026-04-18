@@ -28,8 +28,10 @@ export const conversationUrl = ({
     url = `accounts/${accountId}/participating/conversations/${id}`;
   } else if (conversationType === 'unattended') {
     url = `accounts/${accountId}/unattended/conversations/${id}`;
+  } else if (conversationType === 'tasks') {
+    url = `accounts/${accountId}/tasks/conversations/${id}`;
   }
-  if (noteFilter) {
+  if (noteFilter && conversationType !== 'tasks') {
     return `${url}?${new URLSearchParams({ noteFilter })}`;
   }
   return url;
@@ -45,6 +47,9 @@ export const conversationListPageURL = ({
   noteFilter,
 }) => {
   let url = `accounts/${accountId}/dashboard`;
+  if (noteFilter === 'task') {
+    return frontendURL(`accounts/${accountId}/tasks`);
+  }
   if (label) {
     url = `accounts/${accountId}/label/${label}`;
   } else if (teamId) {

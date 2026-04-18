@@ -3,7 +3,14 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
-import { getLastMessage } from 'dashboard/helper/conversationHelper';
+import {
+  getLastMessage,
+  getMessageForListPreview,
+} from 'dashboard/helper/conversationHelper';
+import {
+  isTaskPrivateNoteMessage,
+  stripTaskNoteTitle,
+} from 'dashboard/helper/taskNotes';
 import { frontendURL, conversationUrl } from 'dashboard/helper/URLHelper';
 import Avatar from 'next/avatar/Avatar.vue';
 import MessagePreview from './MessagePreview.vue';
@@ -99,6 +106,16 @@ const isInboxNameVisible = computed(() => !activeInbox.value);
 
 const lastMessageInChat = computed(() => getLastMessage(props.chat));
 
+const previewMessage = computed(() => getMessageForListPreview(props.chat));
+
+const taskTitle = computed(() => {
+  const msg = lastMessageInChat.value;
+  if (!isTaskPrivateNoteMessage(msg)) return '';
+  return (
+    stripTaskNoteTitle(msg.content) || t('CONVERSATION.REPLYBOX.TASK_NOTE')
+  );
+});
+
 const voiceCallData = computed(() => ({
   status: props.chat.additional_attributes?.call_status,
   direction: props.chat.additional_attributes?.call_direction,
@@ -140,14 +157,9 @@ const messagePreviewClass = computed(() => {
   ];
 });
 
-const isTaskConversation = computed(() => {
-  const message = lastMessageInChat.value;
-  return (
-    message?.private === true &&
-    typeof message?.content === 'string' &&
-    message.content.trim().startsWith('[TASK]')
-  );
-});
+const isTaskConversation = computed(() =>
+  isTaskPrivateNoteMessage(lastMessageInChat.value)
+);
 
 const conversationPath = computed(() => {
   return frontendURL(
@@ -337,18 +349,27 @@ const deleteConversation = () => {
           />
         </div>
       </div>
-      <h4
-        class="conversation--user text-sm my-0 mx-2 capitalize pt-0.5 text-ellipsis overflow-hidden whitespace-nowrap flex-1 min-w-0 ltr:pr-16 rtl:pl-16 text-n-slate-12"
-        :class="hasUnread ? 'font-semibold' : 'font-medium'"
+      <div
+        class="flex items-center gap-2 mx-2 pt-0.5 min-w-0 ltr:pr-16 rtl:pl-16"
       >
-        <span>{{ currentContact.name }}</span>
-        <span
-          v-if="isTaskConversation"
-          class="inline-flex items-center ltr:ml-1 rtl:mr-1 px-1 py-0.5 rounded text-[10px] leading-none font-semibold uppercase text-n-amber-12 bg-n-amber-3"
+        <h4
+          class="conversation--user text-sm my-0 capitalize truncate min-w-0 flex-shrink text-n-slate-12"
+          :class="hasUnread ? 'font-semibold' : 'font-medium'"
         >
-          {{ t('CONVERSATION.REPLYBOX.TASK_NOTE') }}
+          {{ currentContact.name }}
+        </h4>
+        <span
+          v-if="isTaskConversation && taskTitle"
+          class="inline-flex items-center gap-1 max-w-[min(52%,14rem)] flex-shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium leading-tight text-n-amber-12 bg-n-amber-3/35 border border-n-amber-9/25 truncate"
+          :title="taskTitle"
+        >
+          <span
+            class="i-lucide-list-todo size-3 flex-shrink-0 text-n-amber-11 opacity-90"
+            aria-hidden
+          />
+          <span class="truncate">{{ taskTitle }}</span>
         </span>
-      </h4>
+      </div>
       <VoiceCallStatus
         v-if="voiceCallData.status"
         key="voice-status-row"
@@ -357,8 +378,23 @@ const deleteConversation = () => {
         :message-preview-class="messagePreviewClass"
       />
       <MessagePreview
-        v-else-if="lastMessageInChat"
+        v-else-if="previewMessage"
         key="message-preview"
+        :message="previewMessage"
+        class="my-0 mx-2 leading-6 h-6 flex-1 min-w-0 text-sm"
+        :class="messagePreviewClass"
+      />
+      <p
+        v-else-if="isTaskConversation"
+        key="task-only-preview"
+        class="text-n-slate-11 text-sm my-0 mx-2 leading-6 h-6 flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap italic"
+        :class="messagePreviewClass"
+      >
+        {{ t('CONVERSATION.QUICK_TASK.PREVIEW_FALLBACK') }}
+      </p>
+      <MessagePreview
+        v-else-if="lastMessageInChat"
+        key="message-preview-fallback"
         :message="lastMessageInChat"
         class="my-0 mx-2 leading-6 h-6 flex-1 min-w-0 text-sm"
         :class="messagePreviewClass"
