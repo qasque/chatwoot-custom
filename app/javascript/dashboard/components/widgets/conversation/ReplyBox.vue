@@ -46,6 +46,7 @@ import {
   CAPTAIN_EVENTS,
 } from '../../../helper/AnalyticsHelper/events';
 import fileUploadMixin from 'dashboard/mixins/fileUploadMixin';
+import { formatTaskNoteMessage } from 'dashboard/helper/taskNotes';
 import {
   appendSignature,
   removeSignature,
@@ -962,9 +963,7 @@ export default {
     },
     withTaskPrefix(message) {
       if (!this.isPrivate || !this.isTaskNote) return message;
-      if (!message) return '[TASK] ';
-      if (String(message).startsWith('[TASK]')) return message;
-      return `[TASK] ${message}`;
+      return formatTaskNoteMessage(message);
     },
     clearEditorSelection() {
       this.updateEditorSelectionWith = '';

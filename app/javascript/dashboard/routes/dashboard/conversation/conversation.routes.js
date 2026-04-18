@@ -13,6 +13,33 @@ const CONVERSATION_PERMISSIONS = [
 export default {
   routes: [
     {
+      path: frontendURL('accounts/:accountId/tasks'),
+      name: 'conversation_tasks',
+      meta: {
+        permissions: CONVERSATION_PERMISSIONS,
+      },
+      component: ConversationView,
+      props: () => ({
+        inboxId: 0,
+        conversationType: 'tasks',
+      }),
+    },
+    {
+      path: frontendURL(
+        'accounts/:accountId/tasks/conversations/:conversation_id'
+      ),
+      name: 'conversation_through_tasks',
+      meta: {
+        permissions: CONVERSATION_PERMISSIONS,
+      },
+      component: ConversationView,
+      props: route => ({
+        inboxId: 0,
+        conversationId: route.params.conversation_id,
+        conversationType: 'tasks',
+      }),
+    },
+    {
       path: frontendURL('accounts/:accountId/dashboard'),
       name: 'home',
       meta: {

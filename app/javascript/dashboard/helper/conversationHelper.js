@@ -1,3 +1,5 @@
+import { isTaskPrivateNoteMessage } from './taskNotes';
+
 /**
  * Determines the last non-activity message between store and API messages.
  * @param {Object} messageInStore - The last non-activity message from the store.
@@ -39,6 +41,23 @@ export const filterDuplicateSourceMessages = (messages = []) => {
     }
   });
   return messagesWithoutDuplicates;
+};
+
+/**
+ * Last message to show in the conversation list preview: skips trailing task private notes
+ * so the snippet reflects real customer/agent chat when possible.
+ */
+export const getMessageForListPreview = m => {
+  if (!m?.messages?.length) {
+    const apiLast = m.last_non_activity_message;
+    if (apiLast && !isTaskPrivateNoteMessage(apiLast)) return apiLast;
+    return null;
+  }
+  const nonActivity = m.messages.filter(message => message.message_type !== 2);
+  return (
+    [...nonActivity].reverse().find(msg => !isTaskPrivateNoteMessage(msg)) ||
+    null
+  );
 };
 
 /**

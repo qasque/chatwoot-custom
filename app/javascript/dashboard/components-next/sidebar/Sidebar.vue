@@ -2,6 +2,7 @@
 import { h, ref, computed, onMounted } from 'vue';
 import { provideSidebarContext, useSidebarResize } from './provider';
 import { useAccount } from 'dashboard/composables/useAccount';
+import { useAdmin } from 'dashboard/composables/useAdmin';
 import { useKbd } from 'dashboard/composables/utils/useKbd';
 import { useMapGetter } from 'dashboard/composables/store';
 import { useStore } from 'vuex';
@@ -39,6 +40,7 @@ const emit = defineEmits([
 ]);
 
 const { accountScopedRoute, isOnChatwootCloud } = useAccount();
+const { isAdmin } = useAdmin();
 const store = useStore();
 const searchShortcut = useKbd([`$mod`, 'k']);
 const { t } = useI18n();
@@ -222,7 +224,7 @@ const newReportRoutes = () => [
 const reportRoutes = computed(() => newReportRoutes());
 
 const menuItems = computed(() => {
-  return [
+  const items = [
     {
       name: 'Inbox',
       label: t('SIDEBAR.INBOX'),
@@ -271,8 +273,8 @@ const menuItems = computed(() => {
         {
           name: 'TaskNotes',
           label: t('SIDEBAR.TASKS_MENU'),
-          activeOn: ['home', 'inbox_conversation'],
-          to: accountScopedRoute('home', {}, { noteFilter: 'task' }),
+          activeOn: ['conversation_tasks', 'conversation_through_tasks'],
+          to: accountScopedRoute('conversation_tasks'),
         },
         {
           name: 'Folders',
@@ -739,6 +741,13 @@ const menuItems = computed(() => {
       ],
     },
   ];
+
+  // Операторский UX: агенты и custom_role видят только входящие и работу с диалогами.
+  // Полное меню (Captain, контакты, отчёты, кампании, центр помощи, настройки) — у administrator.
+  if (isAdmin.value) return items;
+  return items.filter(
+    item => item.name === 'Inbox' || item.name === 'Conversation'
+  );
 });
 </script>
 

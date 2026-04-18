@@ -301,6 +301,22 @@
       "REJECT_CALL": "Reject",
       "JOIN_CALL": "Join call",
       "END_CALL": "End call"
+    },
+    "QUICK_TASK": {
+      "MODAL_TITLE": "New task",
+      "MODAL_DESC": "Find a conversation and add an internal task in one step — no need to open private notes first.",
+      "SEARCH_LABEL": "Conversation",
+      "SEARCH_PLACEHOLDER": "Search by contact name or conversation…",
+      "TASK_LABEL": "Task",
+      "TASK_PLACEHOLDER": "What should be done?",
+      "CREATE": "Create task",
+      "TOOLTIP": "New task",
+      "SELECT_CONVERSATION_WARNING": "Choose a conversation from the list.",
+      "TASK_REQUIRED": "Enter the task text.",
+      "SUCCESS": "Task created",
+      "ERROR_GENERIC": "Could not create the task. Try again.",
+      "NO_RESULTS": "No conversations match your search.",
+      "PREVIEW_FALLBACK": "Latest activity is this task"
     }
   },
   "EMAIL_TRANSCRIPT": {
