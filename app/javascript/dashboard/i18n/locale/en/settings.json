@@ -399,6 +399,7 @@
     "SAVE_SUCCESS": "Settings saved.",
     "SAVE_ERROR": "Could not save settings.",
     "LOAD_ERROR": "Could not load settings.",
+    "LOADING": "Loading…",
     "SELECT_ALL_INBOXES": "Select all",
     "CLEAR_SELECTION": "Clear",
     "VALIDATION_INBOXES": "Select at least one inbox.",

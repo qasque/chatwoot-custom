@@ -399,6 +399,7 @@
     "SAVE_SUCCESS": "Настройки сохранены.",
     "SAVE_ERROR": "Не удалось сохранить.",
     "LOAD_ERROR": "Не удалось загрузить настройки.",
+    "LOADING": "Загрузка…",
     "SELECT_ALL_INBOXES": "Выбрать все",
     "CLEAR_SELECTION": "Сбросить",
     "VALIDATION_INBOXES": "Выберите хотя бы один инбокс.",

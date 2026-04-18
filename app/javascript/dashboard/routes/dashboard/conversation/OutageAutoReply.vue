@@ -81,9 +81,9 @@ async function save() {
     });
     useAlert(t('OUTAGE_AUTO_REPLY.SAVE_SUCCESS'));
   } catch (e) {
-    const msg =
-      e?.response?.data?.error || e?.message || t('OUTAGE_AUTO_REPLY.SAVE_ERROR');
-    useAlert(msg);
+    const fromApi = e?.response?.data?.error;
+    const fromErr = e?.message;
+    useAlert(fromApi || fromErr || t('OUTAGE_AUTO_REPLY.SAVE_ERROR'));
   } finally {
     isSaving.value = false;
   }
@@ -105,7 +105,7 @@ onMounted(() => {
     />
 
     <div v-if="isLoading || uiFlags.isFetching" class="text-sm text-n-slate-11">
-      …
+      {{ $t('OUTAGE_AUTO_REPLY.LOADING') }}
     </div>
 
     <div v-else class="flex flex-col gap-6 max-w-3xl">
@@ -114,10 +114,10 @@ onMounted(() => {
           v-model="enabled"
           type="checkbox"
           class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
-        >
-        <span class="text-sm font-medium text-n-slate-12">{{
-          $t('OUTAGE_AUTO_REPLY.TOGGLE_LABEL')
-        }}</span>
+        />
+        <span class="text-sm font-medium text-n-slate-12">
+          {{ $t('OUTAGE_AUTO_REPLY.TOGGLE_LABEL') }}
+        </span>
       </label>
 
       <div class="flex flex-col gap-2">
@@ -147,10 +147,12 @@ onMounted(() => {
               class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
               :checked="selectedInboxIds.includes(inbox.id)"
               @change="toggleInbox(inbox.id)"
-            >
-            <label :for="`oar-inbox-${inbox.id}`" class="text-sm text-n-slate-12 cursor-pointer">{{
-              inbox.name
-            }}</label>
+            />
+            <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -- inbox name from API -->
+            <label
+              :for="`oar-inbox-${inbox.id}`"
+              class="text-sm text-n-slate-12 cursor-pointer"
+            >{{ inbox.name }}</label>
           </li>
         </ul>
       </div>
