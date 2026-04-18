@@ -79,9 +79,7 @@ export default {
     />
     <!-- No inboxes attached -->
     <div
-      v-if="
-        !inboxesList.length && !uiFlags.isFetching && !listLoadingBlocksUi
-      "
+      v-if="!inboxesList.length && !uiFlags.isFetching && !listLoadingBlocksUi"
       class="clearfix mx-auto"
     >
       <OnboardingView v-if="isAdmin" />
