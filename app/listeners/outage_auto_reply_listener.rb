@@ -3,34 +3,33 @@ class OutageAutoReplyListener < BaseListener
 
   def message_created(event)
     message = event.data[:message]
-    return unless message&.incoming?
-    return if message.private?
-    return if message.activity?
-    return if message.auto_reply_email?
-    return if performed_by_automation?(event)
-    return if outage_auto_reply_message?(message)
+    return if skip_outage_processing?(message, event)
 
     account = message.account
     cfg = outage_config(account)
-    return unless cfg['enabled'] == true || cfg['enabled'].to_s == 'true'
-
-    inbox_ids = Array(cfg['inbox_ids']).map(&:to_i).reject(&:zero?)
-    if inbox_ids.any? && inbox_ids.exclude?(message.inbox_id)
-      return
-    end
+    return unless outage_mode_enabled?(cfg)
+    return unless inbox_allowed?(message, cfg)
 
     content = cfg['message'].to_s.strip
     return if content.blank?
 
     agent_id = cfg['agent_id'].to_i
     return if agent_id.zero?
-
     return unless eligible_customer_turn?(message)
 
     OutageAutoReplyJob.perform_later(message.id, agent_id, content)
   end
 
   private
+
+  def skip_outage_processing?(message, event)
+    !message&.incoming? ||
+      message.private? ||
+      message.activity? ||
+      message.auto_reply_email? ||
+      performed_by_automation?(event) ||
+      outage_auto_reply_message?(message)
+  end
 
   def performed_by_automation?(event)
     performed = event.data[:performed_by]
@@ -45,10 +44,19 @@ class OutageAutoReplyListener < BaseListener
     (account.custom_attributes || {})[CONFIG_KEY] || {}
   end
 
+  def outage_mode_enabled?(cfg)
+    cfg['enabled'] == true || cfg['enabled'].to_s == 'true'
+  end
+
+  def inbox_allowed?(message, cfg)
+    inbox_ids = Array(cfg['inbox_ids']).map(&:to_i).reject(&:zero?)
+    inbox_ids.empty? || inbox_ids.include?(message.inbox_id)
+  end
+
   def eligible_customer_turn?(message)
     conv = message.conversation
-    first_incoming = !conv.messages.incoming.where(private: false).where('messages.id < ?', message.id).exists?
-    return true if first_incoming
+    prior = conv.messages.incoming.where(private: false).where('messages.id < ?', message.id)
+    return true if prior.none?
 
     attrs = message.additional_attributes || {}
     attrs[Message::REOPENED_FROM_RESOLVED_KEY] == true ||
