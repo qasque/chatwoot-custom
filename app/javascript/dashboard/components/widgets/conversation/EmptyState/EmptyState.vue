@@ -49,11 +49,18 @@ export default {
     newInboxURL() {
       return this.accountScopedUrl('settings/inboxes/new');
     },
+    listLoadingBlocksUi() {
+      return (
+        this.loadingChatList &&
+        !this.allConversations.length &&
+        !this.uiFlags.isFetching
+      );
+    },
     emptyClassName() {
       if (
         !this.inboxesList.length &&
         !this.uiFlags.isFetching &&
-        !this.loadingChatList &&
+        !this.listLoadingBlocksUi &&
         this.isAdmin
       ) {
         return 'h-full overflow-auto w-full';
@@ -67,12 +74,14 @@ export default {
 <template>
   <div :class="emptyClassName">
     <woot-loading-state
-      v-if="uiFlags.isFetching || loadingChatList"
+      v-if="uiFlags.isFetching || listLoadingBlocksUi"
       :message="loadingIndicatorMessage"
     />
     <!-- No inboxes attached -->
     <div
-      v-if="!inboxesList.length && !uiFlags.isFetching && !loadingChatList"
+      v-if="
+        !inboxesList.length && !uiFlags.isFetching && !listLoadingBlocksUi
+      "
       class="clearfix mx-auto"
     >
       <OnboardingView v-if="isAdmin" />
@@ -81,7 +90,7 @@ export default {
     <!-- Show empty state images if not loading -->
 
     <div
-      v-else-if="!uiFlags.isFetching && !loadingChatList"
+      v-else-if="!uiFlags.isFetching && !listLoadingBlocksUi"
       class="flex flex-col items-center justify-center h-full"
     >
       <!-- No conversations available -->

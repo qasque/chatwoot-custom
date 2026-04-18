@@ -1032,20 +1032,31 @@ watch(conversationFilters, (newVal, oldVal) => {
           @de-select-conversation="deSelectConversation"
         />
       </Virtualizer>
-      <div v-if="chatListLoading" class="flex justify-center my-4">
+      <div
+        v-if="chatListLoading && !conversationList.length"
+        class="flex justify-center my-4"
+      >
         <Spinner class="text-n-brand" />
       </div>
-      <p
-        v-else-if="showEndOfListMessage"
-        class="p-4 text-center text-n-slate-11"
+      <template v-else>
+        <p
+          v-if="showEndOfListMessage"
+          class="p-4 text-center text-n-slate-11"
+        >
+          {{ $t('CHAT_LIST.EOF') }}
+        </p>
+        <IntersectionObserver
+          v-else
+          :options="intersectionObserverOptions"
+          @observed="loadMoreConversations"
+        />
+      </template>
+      <div
+        v-if="chatListLoading && conversationList.length"
+        class="flex justify-center my-4"
       >
-        {{ $t('CHAT_LIST.EOF') }}
-      </p>
-      <IntersectionObserver
-        v-else
-        :options="intersectionObserverOptions"
-        @observed="loadMoreConversations"
-      />
+        <Spinner class="text-n-brand" />
+      </div>
     </div>
     <Dialog
       ref="deleteConversationDialogRef"
