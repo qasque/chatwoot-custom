@@ -122,6 +122,20 @@ const getters = {
       return shouldFilter && allowedForRole;
     });
   },
+  getTasksChats: (_state, _, __, rootGetters) => activeFilters => {
+    const inboxes = rootGetters['inboxes/getInboxes'] || [];
+    const accessibleInboxIds = new Set(
+      inboxes.map(inbox => Number(inbox.id))
+    );
+
+    return _state.allConversations.filter(conversation => {
+      if (!applyPageFilters(conversation, activeFilters)) {
+        return false;
+      }
+      const inboxId = Number(conversation.inbox_id);
+      return accessibleInboxIds.has(inboxId);
+    });
+  },
   getChatListLoadingStatus: ({ listLoadingStatus }) => listLoadingStatus,
   getAllMessagesLoaded(_state) {
     const [chat] = getSelectedChatConversation(_state);

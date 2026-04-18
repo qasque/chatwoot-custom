@@ -121,6 +121,34 @@ RSpec.describe Enterprise::Conversations::PermissionFilterService do
         expect(result).not_to include(other_conversation)
         expect(result).not_to include(other_inbox_conversation)
       end
+
+      it 'returns all conversations in accessible inboxes when loading the tasks list' do
+        test_account = create(:account)
+        test_inbox = create(:inbox, account: test_account)
+        test_inbox2 = create(:inbox, account: test_account)
+
+        test_agent = create(:user, account: test_account, role: :agent)
+        create(:inbox_member, user: test_agent, inbox: test_inbox)
+
+        test_custom_role = create(:custom_role, account: test_account, permissions: %w[conversation_participating_manage])
+        account_user = AccountUser.find_by(user: test_agent, account: test_account)
+        account_user.update(role: :agent, custom_role: test_custom_role)
+
+        other_conversation = create(:conversation, account: test_account, inbox: test_inbox)
+        assigned_conversation = create(:conversation, account: test_account, inbox: test_inbox, assignee: test_agent)
+        other_inbox_conversation = create(:conversation, account: test_account, inbox: test_inbox2, assignee: nil)
+
+        result = Conversations::PermissionFilterService.new(
+          test_account.conversations,
+          test_agent,
+          test_account,
+          conversation_type: 'tasks'
+        ).perform
+
+        expect(result).to include(assigned_conversation)
+        expect(result).to include(other_conversation)
+        expect(result).not_to include(other_inbox_conversation)
+      end
     end
 
     context 'when user has conversation_unassigned_manage permission' do

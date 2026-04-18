@@ -117,7 +117,8 @@ class ConversationFinder
     @conversations = Conversations::PermissionFilterService.new(
       @conversations,
       current_user,
-      current_account
+      current_account,
+      conversation_type: params[:conversation_type]
     ).perform
     filter_by_conversation_type if params[:conversation_type]
     @conversations

@@ -20,6 +20,8 @@ module Enterprise::Conversations::PermissionFilterService
     # conversation_manage > conversation_unassigned_manage > conversation_participating_manage
     if permissions.include?('conversation_manage')
       accessible_conversations
+    elsif tasks_conversation_list? && agent_inbox_conversation_access?(permissions)
+      accessible_conversations
     elsif permissions.include?('conversation_unassigned_manage')
       filter_unassigned_and_mine
     elsif permissions.include?('conversation_participating_manage')
@@ -27,6 +29,15 @@ module Enterprise::Conversations::PermissionFilterService
     else
       Conversation.none
     end
+  end
+
+  def tasks_conversation_list?
+    conversation_type.to_s == 'tasks'
+  end
+
+  def agent_inbox_conversation_access?(permissions)
+    permissions.include?('conversation_unassigned_manage') ||
+      permissions.include?('conversation_participating_manage')
   end
 
   def filter_unassigned_and_mine

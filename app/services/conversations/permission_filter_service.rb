@@ -1,10 +1,11 @@
 class Conversations::PermissionFilterService
-  attr_reader :conversations, :user, :account
+  attr_reader :conversations, :user, :account, :conversation_type
 
-  def initialize(conversations, user, account)
+  def initialize(conversations, user, account, conversation_type: nil)
     @conversations = conversations
     @user = user
     @account = account
+    @conversation_type = conversation_type
   end
 
   def perform
