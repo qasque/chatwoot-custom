@@ -2,7 +2,6 @@
 
 class Support::DailyTelegramReportBuilder
   BAR_WIDTH = 20
-  AI_SENDERS = %w[AgentBot Captain::Assistant].freeze
 
   def initialize(account:, period_start:, period_end:)
     @account = account
@@ -14,7 +13,7 @@ class Support::DailyTelegramReportBuilder
     blocks = inboxes.map { |inbox| build_inbox_block(inbox) }
     totals = build_totals(blocks)
 
-    ([header] + blocks.map { |b| b[:text] } + [totals_block(totals)]).join("\n\n")
+    ([header] + blocks.pluck(:text) + [totals_block(totals)]).join("\n\n")
   end
 
   private
@@ -26,117 +25,40 @@ class Support::DailyTelegramReportBuilder
   end
 
   def header
-    "<b>📊 Техподдержка | #{fmt_time(period_start)} → #{fmt_time(period_end)} (МСК)</b>"
+    "<b>\u{1F4CA} Техподдержка | #{fmt_time(period_start)} → #{fmt_time(period_end)} (МСК)</b>"
   end
 
   def build_inbox_block(inbox)
     conversations = account.conversations.where(inbox_id: inbox.id, created_at: period_start...period_end)
     conversation_ids = conversations.pluck(:id)
-    metrics = compute_metrics(inbox, conversations, conversation_ids)
+    metrics = metrics_calculator.for_inbox(inbox, conversations, conversation_ids)
 
-    {
-      metrics: metrics,
-      text: [
-        separator,
-        "<b>🔹 Сервис: #{h(inbox.name)}</b>",
-        separator,
-        '',
-        '<b>Воронка:</b>',
-        funnel_lines(metrics),
-        '',
-        '<b>Топ-5 тем обращений:</b>',
-        topics_lines(metrics[:topics]),
-        '',
-        "Среднее время первого ответа: #{duration(metrics[:avg_first_response])}",
-        "Среднее время решения: #{duration(metrics[:avg_resolution_time])}"
-      ].join("\n")
-    }
+    { metrics: metrics, text: inbox_block_text(inbox, metrics) }
   end
 
-  def compute_metrics(inbox, conversations, conversation_ids)
-    return empty_metrics if conversation_ids.empty?
-
-    message_scope = Message.where(conversation_id: conversation_ids, private: false, message_type: Message.message_types[:outgoing])
-    ai_conversation_ids = message_scope.where(sender_type: AI_SENDERS).distinct.pluck(:conversation_id)
-    operator_conversation_ids = message_scope.where(sender_type: 'User').distinct.pluck(:conversation_id)
-
-    handoff_ids = ReportingEvent.where(
-      account_id: account.id,
-      inbox_id: inbox.id,
-      name: 'conversation_bot_handoff',
-      created_at: period_start...period_end
-    ).distinct.pluck(:conversation_id)
-
-    operator_after_ai_ids = operator_conversation_ids & ai_conversation_ids
-    escalated_ids = (handoff_ids + operator_after_ai_ids).uniq
-
-    {
-      total: conversations.count,
-      ai_accepted: ai_conversation_ids.size,
-      ai_resolved: ai_resolved_count(inbox, conversation_ids),
-      escalated: escalated_ids.size,
-      operator_resolved: operator_resolved_count(inbox, conversation_ids),
-      unresolved: conversations.where.not(status: :resolved).count,
-      topics: top_topics(conversations),
-      avg_first_response: avg_event_value(inbox.id, 'first_response'),
-      avg_resolution_time: avg_event_value(inbox.id, 'conversation_resolved')
-    }
+  def inbox_block_text(inbox, metrics)
+    [
+      separator,
+      "<b>\u{1F539} Сервис: #{h(inbox.name)}</b>",
+      separator,
+      '',
+      '<b>Воронка:</b>',
+      funnel_lines(metrics),
+      '',
+      '<b>Топ-5 тем обращений:</b>',
+      topics_lines(metrics[:topics]),
+      '',
+      "Среднее время первого ответа: #{duration(metrics[:avg_first_response])}",
+      "Среднее время решения: #{duration(metrics[:avg_resolution_time])}"
+    ].join("\n")
   end
 
-  def ai_resolved_count(inbox, conversation_ids)
-    ReportingEvent.where(
-      account_id: account.id,
-      inbox_id: inbox.id,
-      name: 'conversation_bot_resolved',
-      created_at: period_start...period_end,
-      conversation_id: conversation_ids
-    ).distinct.count(:conversation_id)
-  end
-
-  def operator_resolved_count(inbox, conversation_ids)
-    bot_resolved_ids = ReportingEvent.where(
-      account_id: account.id,
-      inbox_id: inbox.id,
-      name: 'conversation_bot_resolved',
-      created_at: period_start...period_end,
-      conversation_id: conversation_ids
-    ).distinct.pluck(:conversation_id)
-
-    scope = ReportingEvent.where(
-      account_id: account.id,
-      inbox_id: inbox.id,
-      name: 'conversation_resolved',
-      created_at: period_start...period_end,
-      conversation_id: conversation_ids
+  def metrics_calculator
+    @metrics_calculator ||= Support::DailyTelegramReportMetrics.new(
+      account: account,
+      period_start: period_start,
+      period_end: period_end
     )
-    scope = scope.where.not(conversation_id: bot_resolved_ids) if bot_resolved_ids.present?
-    scope.distinct.count(:conversation_id)
-  end
-
-  def avg_event_value(inbox_id, event_name)
-    ReportingEvent.where(
-      account_id: account.id,
-      inbox_id: inbox_id,
-      name: event_name,
-      created_at: period_start...period_end
-    ).average(:value).to_f
-  end
-
-  def top_topics(conversations)
-    names = conversations.pluck(:custom_attributes, :cached_label_list).map do |custom_attributes, cached_labels|
-      topic_from(custom_attributes, cached_labels)
-    end
-
-    names.tally.sort_by { |_k, v| -v }.first(5)
-  end
-
-  def topic_from(custom_attributes, cached_labels)
-    attrs = custom_attributes || {}
-    topic = attrs['topic'].presence || attrs['category'].presence
-    return topic if topic.present?
-
-    first_label = cached_labels.to_s.split(',').map(&:strip).reject(&:blank?).first
-    first_label.presence || 'Без категории'
   end
 
   def funnel_lines(metrics)
@@ -150,10 +72,14 @@ class Support::DailyTelegramReportBuilder
     ]
 
     stages.each_with_index.map do |(label, count), idx|
-      line = format('%-16s %s %4d (%s)', label, bar(count, metrics[:total]), count, pct(count, metrics[:total]))
-      if idx.positive?
-        line += "  #{dropoff(stages[idx - 1][1], count)}"
-      end
+      line = format(
+        '%<label>-16s%<bar>s %<count>4d (%<pct>s)',
+        label: label,
+        bar: bar(count, metrics[:total]),
+        count: count,
+        pct: pct(count, metrics[:total])
+      )
+      line += "  #{dropoff(stages[idx - 1][1], count)}" if idx.positive?
       line
     end.join("\n")
   end
@@ -168,7 +94,7 @@ class Support::DailyTelegramReportBuilder
   end
 
   def build_totals(blocks)
-    metrics = blocks.map { |b| b[:metrics] }
+    metrics = blocks.pluck(:metrics)
     total = metrics.sum { |m| m[:total] }
     ai_resolved = metrics.sum { |m| m[:ai_resolved] }
     escalated = metrics.sum { |m| m[:escalated] }
@@ -185,7 +111,7 @@ class Support::DailyTelegramReportBuilder
   def totals_block(totals)
     [
       separator,
-      '<b>📈 Итого по всем сервисам</b>',
+      "<b>\u{1F4C8} Итого по всем сервисам</b>",
       separator,
       "Всего обращений: #{totals[:total]}",
       "AI resolution rate: #{totals[:ai_resolution_rate]}",
@@ -197,7 +123,7 @@ class Support::DailyTelegramReportBuilder
   def bar(value, total)
     ratio = total.positive? ? value.to_f / total : 0
     filled = (BAR_WIDTH * ratio).round
-    '█' * filled + '░' * (BAR_WIDTH - filled)
+    ('█' * filled) + ('░' * (BAR_WIDTH - filled))
   end
 
   def pct(value, total)
@@ -234,19 +160,5 @@ class Support::DailyTelegramReportBuilder
 
   def h(text)
     CGI.escapeHTML(text.to_s)
-  end
-
-  def empty_metrics
-    {
-      total: 0,
-      ai_accepted: 0,
-      ai_resolved: 0,
-      escalated: 0,
-      operator_resolved: 0,
-      unresolved: 0,
-      topics: [],
-      avg_first_response: 0,
-      avg_resolution_time: 0
-    }
   end
 end

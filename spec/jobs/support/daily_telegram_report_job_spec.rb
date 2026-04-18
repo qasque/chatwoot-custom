@@ -43,7 +43,7 @@ RSpec.describe Support::DailyTelegramReportJob, type: :job do
       travel_to report_end do
         described_class.perform_now
       end
-    end.to change { enqueued_daily_reports.size }.by(1)
+    end.to change(enqueued_daily_reports, :size).by(1)
 
     payload = enqueued_daily_reports.last[:args].first.with_indifferent_access
     expect(payload[:attempt]).to eq(1)
@@ -61,7 +61,7 @@ RSpec.describe Support::DailyTelegramReportJob, type: :job do
       travel_to report_end do
         described_class.perform_now
       end
-    end.not_to(change { enqueued_daily_reports.size })
+    end.not_to(change(enqueued_daily_reports, :size))
   end
 
   it 'does not schedule retry on HTTP 400 from Telegram' do
@@ -73,6 +73,6 @@ RSpec.describe Support::DailyTelegramReportJob, type: :job do
       travel_to report_end do
         described_class.perform_now
       end
-    end.not_to(change { enqueued_daily_reports.size })
+    end.not_to(change(enqueued_daily_reports, :size))
   end
 end

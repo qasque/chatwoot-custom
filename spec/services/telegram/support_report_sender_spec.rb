@@ -29,11 +29,16 @@ RSpec.describe Telegram::SupportReportSender do
         body: { ok: false, description: 'Bad Request' }.to_json
       )
 
-      expect do
-        described_class.new(bot_token: token, chat_id: chat_id).perform('x')
-      end.to raise_error(described_class::DeliveryError) do |e|
-        expect(e.status_code).to eq(400)
+      sender = described_class.new(bot_token: token, chat_id: chat_id)
+      error = nil
+      begin
+        sender.perform('x')
+      rescue described_class::DeliveryError => e
+        error = e
       end
+
+      expect(error).to be_a(described_class::DeliveryError)
+      expect(error.status_code).to eq(400)
     end
 
     it 'raises DeliveryError when token or chat is missing' do
