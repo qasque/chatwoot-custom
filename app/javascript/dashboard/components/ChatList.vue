@@ -1039,10 +1039,7 @@ watch(conversationFilters, (newVal, oldVal) => {
         <Spinner class="text-n-brand" />
       </div>
       <template v-else>
-        <p
-          v-if="showEndOfListMessage"
-          class="p-4 text-center text-n-slate-11"
-        >
+        <p v-if="showEndOfListMessage" class="p-4 text-center text-n-slate-11">
           {{ $t('CHAT_LIST.EOF') }}
         </p>
         <IntersectionObserver
