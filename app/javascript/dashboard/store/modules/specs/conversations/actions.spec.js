@@ -439,10 +439,14 @@ describe('#actions', () => {
         { commit, dispatch },
         dataToSend
       );
-      expect(commit).toHaveBeenCalledTimes(3);
+      const expectedContacts = dataReceived.payload.map(
+        chat => chat.meta.sender
+      );
+      expect(commit).toHaveBeenCalledTimes(4);
       expect(commit.mock.calls).toEqual([
         [types.SET_LIST_LOADING_STATUS],
         [types.SET_ALL_CONVERSATION, dataReceived.payload],
+        [`contacts/${types.SET_CONTACTS}`, expectedContacts],
         [types.CLEAR_LIST_LOADING_STATUS],
       ]);
     });
