@@ -1,4 +1,7 @@
-import { ROLES, CONVERSATION_PERMISSIONS } from 'dashboard/constants/permissions.js';
+import {
+  CONVERSATION_PERMISSIONS,
+  ROLES,
+} from 'dashboard/constants/permissions.js';
 import { frontendURL } from '../../../../helper/URLHelper';
 import SettingsWrapper from '../SettingsWrapper.vue';
 import Index from './Index.vue';

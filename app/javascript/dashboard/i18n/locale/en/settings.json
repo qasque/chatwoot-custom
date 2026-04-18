@@ -421,7 +421,8 @@
     "SELECT_ALL_INBOXES": "Select all",
     "CLEAR_SELECTION": "Clear",
     "VALIDATION_INBOXES": "Select at least one inbox.",
-    "VALIDATION_MESSAGE": "Message text cannot be empty."
+    "VALIDATION_MESSAGE": "Message text cannot be empty.",
+    "LOADING": "Loading…"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",

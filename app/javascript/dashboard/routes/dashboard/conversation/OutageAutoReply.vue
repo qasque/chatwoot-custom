@@ -47,9 +47,7 @@ async function load() {
   try {
     const { data } = await OutageAutoReplyApi.get();
     enabled.value = !!data.enabled;
-    messageBody.value =
-      data.message ||
-      t('OUTAGE_AUTO_REPLY.DEFAULT_MESSAGE');
+    messageBody.value = data.message || t('OUTAGE_AUTO_REPLY.DEFAULT_MESSAGE');
     selectedInboxIds.value = Array.isArray(data.inbox_ids)
       ? [...data.inbox_ids]
       : [];
@@ -124,7 +122,9 @@ onMounted(() => {
         <label class="text-sm font-medium text-n-slate-12">{{
           $t('OUTAGE_AUTO_REPLY.INBOXES_LABEL')
         }}</label>
-        <p class="text-xs text-n-slate-11">{{ $t('OUTAGE_AUTO_REPLY.INBOXES_HINT') }}</p>
+        <p class="text-xs text-n-slate-11">
+          {{ $t('OUTAGE_AUTO_REPLY.INBOXES_HINT') }}
+        </p>
         <div class="flex gap-2 mb-2">
           <NextButton ghost sm @click="selectAll">
             {{ $t('OUTAGE_AUTO_REPLY.SELECT_ALL_INBOXES') }}
@@ -152,7 +152,9 @@ onMounted(() => {
             <label
               :for="`oar-inbox-${inbox.id}`"
               class="text-sm text-n-slate-12 cursor-pointer"
-            >{{ inbox.name }}</label>
+            >
+              {{ inbox.name }}
+            </label>
           </li>
         </ul>
       </div>

@@ -71,9 +71,9 @@ async function submit() {
     useAlert(t('OUTAGE_BROADCAST.SUCCESS'));
     confirmRef.value?.close();
   } catch (e) {
-    const msg =
-      e?.response?.data?.error || e?.message || t('OUTAGE_BROADCAST.ERROR');
-    useAlert(msg);
+    const fromApi = e?.response?.data?.error;
+    const fromErr = e?.message;
+    useAlert(fromApi || fromErr || t('OUTAGE_BROADCAST.ERROR'));
   } finally {
     isSubmitting.value = false;
   }
@@ -87,14 +87,18 @@ async function submit() {
       :description="$t('OUTAGE_BROADCAST.PAGE_DESC')"
     />
 
-    <div v-if="uiFlags.isFetching" class="text-sm text-n-slate-11">…</div>
+    <div v-if="uiFlags.isFetching" class="text-sm text-n-slate-11">
+      {{ $t('OUTAGE_BROADCAST.LOADING') }}
+    </div>
 
     <div v-else class="flex flex-col gap-6 max-w-3xl">
       <div class="flex flex-col gap-2">
         <label class="text-sm font-medium text-n-slate-12">{{
           $t('OUTAGE_BROADCAST.INBOXES_LABEL')
         }}</label>
-        <p class="text-xs text-n-slate-11">{{ $t('OUTAGE_BROADCAST.INBOXES_HINT') }}</p>
+        <p class="text-xs text-n-slate-11">
+          {{ $t('OUTAGE_BROADCAST.INBOXES_HINT') }}
+        </p>
         <div class="flex gap-2 mb-2">
           <NextButton ghost sm @click="selectAll">
             {{ $t('OUTAGE_BROADCAST.SELECT_ALL_INBOXES') }}
@@ -117,11 +121,14 @@ async function submit() {
               class="size-4 rounded border-n-weak text-n-brand focus:ring-n-brand"
               :checked="selectedInboxIds.includes(inbox.id)"
               @change="toggleInbox(inbox.id)"
-            >
+            />
+            <!-- eslint-disable-next-line @intlify/vue-i18n/no-raw-text -- inbox name from API -->
             <label
               :for="`ob-inbox-${inbox.id}`"
               class="text-sm cursor-pointer text-n-slate-12"
-            >{{ inbox.name }}</label>
+            >
+              {{ inbox.name }}
+            </label>
           </li>
         </ul>
       </div>
@@ -137,11 +144,7 @@ async function submit() {
         />
       </div>
 
-      <NextButton
-        color="blue"
-        :disabled="isSubmitting"
-        @click="openConfirm"
-      >
+      <NextButton color="blue" :disabled="isSubmitting" @click="openConfirm">
         {{ $t('OUTAGE_BROADCAST.SUBMIT') }}
       </NextButton>
     </div>

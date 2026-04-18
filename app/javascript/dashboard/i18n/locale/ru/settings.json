@@ -421,7 +421,8 @@
     "SELECT_ALL_INBOXES": "Выбрать все",
     "CLEAR_SELECTION": "Сбросить",
     "VALIDATION_INBOXES": "Выберите хотя бы один инбокс.",
-    "VALIDATION_MESSAGE": "Введите текст сообщения."
+    "VALIDATION_MESSAGE": "Введите текст сообщения.",
+    "LOADING": "Загрузка…"
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",
