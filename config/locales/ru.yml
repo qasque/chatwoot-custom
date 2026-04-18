@@ -480,3 +480,6 @@ ru:
       subject: 'Завершить настройку %{custom_domain}'
     ssl_status:
       custom_domain_not_configured: 'Пользовательский домен не настроен'
+  api:
+    outage_broadcast:
+      enqueued: 'Сообщения об инциденте поставлены в очередь и отправляются в фоне.'

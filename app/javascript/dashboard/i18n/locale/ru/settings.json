@@ -384,7 +384,25 @@
     "DOCS": "Открыть документацию",
     "SECURITY": "Безопасность",
     "CAPTAIN_AI": "Капитан",
-    "CONVERSATION_WORKFLOW": "Conversation Workflow"
+    "CONVERSATION_WORKFLOW": "Conversation Workflow",
+    "OUTAGE_BROADCAST": "Сообщение при сбое"
+  },
+  "OUTAGE_BROADCAST": {
+    "PAGE_TITLE": "Массовое уведомление о сбое",
+    "PAGE_DESC": "Одно исходящее сообщение во все нерешённые диалоги выбранных инбоксов (виджет, Telegram и т.д.). Используйте при инцидентах.",
+    "INBOXES_LABEL": "Инбоксы",
+    "INBOXES_HINT": "Можно выбрать несколько.",
+    "MESSAGE_LABEL": "Текст сообщения",
+    "SUBMIT": "Отправить во все открытые диалоги",
+    "SUCCESS": "Запущено: сообщения отправляются в фоне.",
+    "ERROR": "Не удалось запустить рассылку. Попробуйте снова.",
+    "CONFIRM_TITLE": "Отправить уведомление о сбое?",
+    "CONFIRM_BODY": "Будет поставлена исходящая реплика для каждого открытого диалога в выбранных инбоксах. Продолжить?",
+    "DEFAULT_MESSAGE": "Сейчас массовые сбои, уже исправляем. Приносим извинения за доставленные неудобства.",
+    "SELECT_ALL_INBOXES": "Выбрать все",
+    "CLEAR_SELECTION": "Сбросить",
+    "VALIDATION_INBOXES": "Выберите хотя бы один инбокс.",
+    "VALIDATION_MESSAGE": "Введите текст сообщения."
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",

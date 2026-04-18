@@ -679,6 +679,13 @@ const menuItems = computed(() => {
           to: accountScopedRoute('automation_list'),
         },
         {
+          name: 'Settings Outage broadcast',
+          label: t('SIDEBAR.OUTAGE_BROADCAST'),
+          icon: 'i-lucide-megaphone',
+          activeOn: ['settings_outage_broadcast_index'],
+          to: accountScopedRoute('settings_outage_broadcast_index'),
+        },
+        {
           name: 'Settings Agent Bots',
           label: t('SIDEBAR.AGENT_BOTS'),
           icon: 'i-lucide-bot',

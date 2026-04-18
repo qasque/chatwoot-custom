@@ -384,7 +384,25 @@
     "DOCS": "Read docs",
     "SECURITY": "Security",
     "CAPTAIN_AI": "Captain",
-    "CONVERSATION_WORKFLOW": "Conversation Workflow"
+    "CONVERSATION_WORKFLOW": "Conversation Workflow",
+    "OUTAGE_BROADCAST": "Incident broadcast"
+  },
+  "OUTAGE_BROADCAST": {
+    "PAGE_TITLE": "Mass outage notice",
+    "PAGE_DESC": "Send one outgoing message to every non-resolved conversation in the selected inboxes (widget, Telegram, etc.). Use during incidents so customers see an apology and status.",
+    "INBOXES_LABEL": "Inboxes",
+    "INBOXES_HINT": "Select one or more inboxes.",
+    "MESSAGE_LABEL": "Message text",
+    "SUBMIT": "Send to all open conversations",
+    "SUCCESS": "Queued: messages will be sent in the background.",
+    "ERROR": "Could not start broadcast. Try again.",
+    "CONFIRM_TITLE": "Send outage notice?",
+    "CONFIRM_BODY": "This will enqueue an outgoing reply for each open conversation in the selected inboxes. Continue?",
+    "DEFAULT_MESSAGE": "We are experiencing service issues and are working on a fix. We apologize for the inconvenience.",
+    "SELECT_ALL_INBOXES": "Select all",
+    "CLEAR_SELECTION": "Clear",
+    "VALIDATION_INBOXES": "Select at least one inbox.",
+    "VALIDATION_MESSAGE": "Message text cannot be empty."
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",
