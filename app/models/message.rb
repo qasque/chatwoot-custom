@@ -44,6 +44,7 @@ class Message < ApplicationRecord
   include MessageFilterHelpers
   include Liquidable
   NUMBER_OF_PERMITTED_ATTACHMENTS = 15
+  REOPENED_FROM_RESOLVED_KEY = 'reopened_from_resolved'
 
   TEMPLATE_PARAMS_SCHEMA = {
     'type': 'object',
@@ -399,7 +400,15 @@ class Message < ApplicationRecord
 
     conversation.open! if conversation.snoozed?
 
-    reopen_resolved_conversation if conversation.resolved?
+    if conversation.resolved?
+      mark_reopened_from_resolved!
+      reopen_resolved_conversation
+    end
+  end
+
+  def mark_reopened_from_resolved!
+    attrs = additional_attributes.stringify_keys.merge(REOPENED_FROM_RESOLVED_KEY => true)
+    update_columns(additional_attributes: attrs, updated_at: Time.current)
   end
 
   def mark_pending_conversation_as_open_for_human_response

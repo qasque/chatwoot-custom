@@ -1,6 +1,7 @@
 /* eslint arrow-body-style: 0 */
 import { frontendURL } from '../../../helper/URLHelper';
 import ConversationView from './ConversationView.vue';
+import OutageAutoReply from './OutageAutoReply.vue';
 
 const CONVERSATION_PERMISSIONS = [
   'administrator',
@@ -38,6 +39,14 @@ export default {
         conversationId: route.params.conversation_id,
         conversationType: 'tasks',
       }),
+    },
+    {
+      path: frontendURL('accounts/:accountId/outage-auto-reply'),
+      name: 'outage_auto_reply',
+      meta: {
+        permissions: CONVERSATION_PERMISSIONS,
+      },
+      component: OutageAutoReply,
     },
     {
       path: frontendURL('accounts/:accountId/dashboard'),

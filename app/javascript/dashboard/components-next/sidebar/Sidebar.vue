@@ -277,6 +277,13 @@ const menuItems = computed(() => {
           to: accountScopedRoute('conversation_tasks'),
         },
         {
+          name: 'OutageAutoReply',
+          label: t('SIDEBAR.OUTAGE_AUTO_REPLY_MENU'),
+          icon: 'i-lucide-alert-triangle',
+          activeOn: ['outage_auto_reply'],
+          to: accountScopedRoute('outage_auto_reply'),
+        },
+        {
           name: 'Folders',
           label: t('SIDEBAR.CUSTOM_VIEWS_FOLDER'),
           icon: 'i-lucide-folder',

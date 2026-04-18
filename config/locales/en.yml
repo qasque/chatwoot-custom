@@ -487,5 +487,7 @@ en:
     ssl_status:
       custom_domain_not_configured: 'Custom domain is not configured'
   api:
+    outage_auto_reply:
+      enabled_requires_message_and_inboxes: 'Message text and at least one inbox are required when outage auto-reply is enabled.'
     outage_broadcast:
       enqueued: 'Outage notices are being sent in the background.'

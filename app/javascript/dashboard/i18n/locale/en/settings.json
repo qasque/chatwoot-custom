@@ -385,7 +385,25 @@
     "SECURITY": "Security",
     "CAPTAIN_AI": "Captain",
     "CONVERSATION_WORKFLOW": "Conversation Workflow",
-    "OUTAGE_BROADCAST": "Incident broadcast"
+    "OUTAGE_BROADCAST": "Incident broadcast",
+    "OUTAGE_AUTO_REPLY_MENU": "Outage auto-reply"
+  },
+  "OUTAGE_AUTO_REPLY": {
+    "PAGE_TITLE": "Outage auto-reply",
+    "PAGE_DESC": "While enabled, the first customer message in a new conversation (or the first message after a resolved dialog reopens) in the selected inboxes gets your text as an automatic reply. The conversation is assigned to you so it appears under Mine.",
+    "TOGGLE_LABEL": "Enable outage auto-reply",
+    "INBOXES_LABEL": "Inboxes",
+    "INBOXES_HINT": "Only conversations in these inboxes are affected. Select at least one when enabling.",
+    "MESSAGE_LABEL": "Automatic reply text",
+    "SAVE": "Save",
+    "SAVE_SUCCESS": "Settings saved.",
+    "SAVE_ERROR": "Could not save settings.",
+    "LOAD_ERROR": "Could not load settings.",
+    "SELECT_ALL_INBOXES": "Select all",
+    "CLEAR_SELECTION": "Clear",
+    "VALIDATION_INBOXES": "Select at least one inbox.",
+    "VALIDATION_MESSAGE": "Message text cannot be empty.",
+    "DEFAULT_MESSAGE": "We are experiencing service issues and are working on a fix. We apologize for the inconvenience."
   },
   "OUTAGE_BROADCAST": {
     "PAGE_TITLE": "Mass outage notice",

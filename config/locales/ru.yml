@@ -481,5 +481,7 @@ ru:
     ssl_status:
       custom_domain_not_configured: 'Пользовательский домен не настроен'
   api:
+    outage_auto_reply:
+      enabled_requires_message_and_inboxes: 'При включённом автоответе нужны текст сообщения и хотя бы один инбокс.'
     outage_broadcast:
       enqueued: 'Сообщения об инциденте поставлены в очередь и отправляются в фоне.'

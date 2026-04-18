@@ -55,6 +55,7 @@ Rails.application.routes.draw do
           end
           resource :bulk_actions, only: [:create]
           resource :outage_broadcast, only: [:create], controller: 'outage_broadcast'
+          resource :outage_auto_reply, only: %i[show update], controller: 'outage_auto_reply'
           resources :agents, only: [:index, :create, :update, :destroy] do
             post :bulk_create, on: :collection
           end
