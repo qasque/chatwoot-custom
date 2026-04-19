@@ -71,11 +71,13 @@ class Captain::InboxPendingConversationsResolutionJob < ApplicationJob
   end
 
   def resolve_conversation(conversation, inbox, reason)
-    Captain::InferenceConversationResolutionService.new(
-      conversation: conversation,
-      inbox: inbox,
-      evaluation_reason: reason
-    ).perform
+    create_private_note(conversation, inbox, "Auto-resolved: #{reason}")
+    create_resolution_message(conversation, inbox)
+    conversation.with_captain_activity_context(
+      reason: CAPTAIN_INFERENCE_RESOLVE_ACTIVITY_REASON,
+      reason_type: :inference
+    ) { conversation.resolved! }
+    conversation.dispatch_captain_inference_resolved_event
   end
 
   def handoff_conversation(conversation, inbox, reason)
