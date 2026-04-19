@@ -527,6 +527,13 @@ const menuItems = computed(() => {
       ],
     },
     {
+      name: 'TelegramReport',
+      label: t('SIDEBAR.TELEGRAM_REPORT'),
+      icon: 'i-lucide-send',
+      to: accountScopedRoute('settings_telegram_report_index'),
+      activeOn: ['settings_telegram_report_index'],
+    },
+    {
       name: 'Campaigns',
       label: t('SIDEBAR.CAMPAIGNS'),
       icon: 'i-lucide-megaphone',
