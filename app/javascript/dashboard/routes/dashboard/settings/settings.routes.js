@@ -27,6 +27,7 @@ import security from './security/security.routes';
 import conversationWorkflow from './conversationWorkflow/conversationWorkflow.routes';
 import captain from './captain/captain.routes';
 import outageBroadcast from './outageBroadcast/outageBroadcast.routes';
+import telegramReport from './telegramReport/telegramReport.routes';
 
 export default {
   routes: [
@@ -69,5 +70,6 @@ export default {
     ...conversationWorkflow.routes,
     ...captain.routes,
     ...outageBroadcast.routes,
+    ...telegramReport.routes,
   ],
 };

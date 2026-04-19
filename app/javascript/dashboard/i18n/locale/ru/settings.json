@@ -386,7 +386,8 @@
     "CAPTAIN_AI": "Капитан",
     "CONVERSATION_WORKFLOW": "Conversation Workflow",
     "OUTAGE_BROADCAST": "Сообщение при сбое",
-    "OUTAGE_AUTO_REPLY_MENU": "Сбой: автоответ"
+    "OUTAGE_AUTO_REPLY_MENU": "Сбой: автоответ",
+    "TELEGRAM_REPORT": "Отчёт в Telegram"
   },
   "OUTAGE_AUTO_REPLY": {
     "PAGE_TITLE": "Автоответ при сбое",
@@ -423,6 +424,31 @@
     "VALIDATION_INBOXES": "Выберите хотя бы один инбокс.",
     "VALIDATION_MESSAGE": "Введите текст сообщения.",
     "LOADING": "Загрузка…"
+  },
+  "TELEGRAM_REPORT": {
+    "PAGE_TITLE": "Ежедневный отчёт в Telegram",
+    "PAGE_DESC": "Расписание сводки по поддержке, выбор инбоксов или отправка отчёта за произвольный период.",
+    "LOADING": "Загрузка…",
+    "LOAD_ERROR": "Не удалось загрузить настройки.",
+    "FORBIDDEN": "Отчёт привязан к другому аккаунту. Попросите супер-админа сменить привязку.",
+    "SCHEDULE_TITLE": "Расписание",
+    "SCHEDULE_HINT": "Локальное время в выбранном часовом поясе. Нужны TELEGRAM_REPORT_BOT_TOKEN и TELEGRAM_REPORT_CHAT_ID (или старые имена). Сохранение обновляет cron Sidekiq на сервере.",
+    "HOUR": "Час (0–23)",
+    "MINUTE": "Минута (0–59)",
+    "TIMEZONE": "Часовой пояс",
+    "INBOXES_LABEL": "Инбоксы для ежедневного отчёта (пусто = все)",
+    "SAVE": "Сохранить расписание",
+    "SAVE_SUCCESS": "Сохранено.",
+    "SAVE_ERROR": "Не удалось сохранить.",
+    "SEND_NOW_TITLE": "Отправить отчёт сейчас",
+    "SEND_NOW_HINT": "Даты в полях ниже; сервер разбирает их в часовом поясе приложения.",
+    "PERIOD_START": "Начало периода",
+    "PERIOD_END": "Конец периода",
+    "PERIOD_REQUIRED": "Укажите начало и конец периода.",
+    "SEND_INBOXES": "Ограничить инбоксами (необязательно)",
+    "SEND_BUTTON": "Поставить в очередь",
+    "SEND_SUCCESS": "Отчёт поставлен в очередь.",
+    "SEND_ERROR": "Не удалось поставить отчёт в очередь."
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",

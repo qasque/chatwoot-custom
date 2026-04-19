@@ -386,7 +386,8 @@
     "CAPTAIN_AI": "Captain",
     "CONVERSATION_WORKFLOW": "Conversation Workflow",
     "OUTAGE_BROADCAST": "Incident broadcast",
-    "OUTAGE_AUTO_REPLY_MENU": "Outage auto-reply"
+    "OUTAGE_AUTO_REPLY_MENU": "Outage auto-reply",
+    "TELEGRAM_REPORT": "Telegram daily report"
   },
   "OUTAGE_AUTO_REPLY": {
     "PAGE_TITLE": "Outage auto-reply",
@@ -423,6 +424,31 @@
     "VALIDATION_INBOXES": "Select at least one inbox.",
     "VALIDATION_MESSAGE": "Message text cannot be empty.",
     "LOADING": "Loading…"
+  },
+  "TELEGRAM_REPORT": {
+    "PAGE_TITLE": "Telegram support report",
+    "PAGE_DESC": "Schedule the daily analytics message to Telegram, pick inboxes, or send a report for a custom time range.",
+    "LOADING": "Loading…",
+    "LOAD_ERROR": "Could not load settings.",
+    "FORBIDDEN": "This report is linked to another account. Ask a super admin to change the linked account.",
+    "SCHEDULE_TITLE": "Schedule",
+    "SCHEDULE_HINT": "Local time in the selected time zone. Uses TELEGRAM_REPORT_BOT_TOKEN / TELEGRAM_REPORT_CHAT_ID (or legacy env names). Saving updates Sidekiq cron for this server.",
+    "HOUR": "Hour (0–23)",
+    "MINUTE": "Minute (0–59)",
+    "TIMEZONE": "Time zone",
+    "INBOXES_LABEL": "Inboxes for scheduled report (empty = all)",
+    "SAVE": "Save schedule",
+    "SAVE_SUCCESS": "Saved.",
+    "SAVE_ERROR": "Could not save.",
+    "SEND_NOW_TITLE": "Send report now",
+    "SEND_NOW_HINT": "Uses your browser’s local date/time fields; the server parses them in the app time zone.",
+    "PERIOD_START": "Period start",
+    "PERIOD_END": "Period end",
+    "PERIOD_REQUIRED": "Choose start and end.",
+    "SEND_INBOXES": "Limit to inboxes (optional)",
+    "SEND_BUTTON": "Queue report",
+    "SEND_SUCCESS": "Report queued.",
+    "SEND_ERROR": "Could not queue report."
   },
   "CAPTAIN_SETTINGS": {
     "TITLE": "Captain Settings",

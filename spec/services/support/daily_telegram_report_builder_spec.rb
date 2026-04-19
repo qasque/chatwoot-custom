@@ -136,6 +136,63 @@ RSpec.describe Support::DailyTelegramReportBuilder do
       expect(text).to match(/Эскалация.*\b1\b/)
     end
 
+    it 'counts conversations where the last message is from the bot and the contact did not reply after' do
+      agent_bot = create(:agent_bot, account: account)
+      contact = create(:contact, account: account)
+      conv = create(:conversation, account: account, inbox: inbox, contact: contact, created_at: period_start + 5.minutes)
+
+      create(
+        :message,
+        account: account,
+        inbox: inbox,
+        conversation: conv,
+        message_type: 'outgoing',
+        sender: agent_bot,
+        created_at: period_start + 6.minutes
+      )
+
+      text = described_class.new(
+        account: account,
+        period_start: period_start,
+        period_end: period_end
+      ).perform
+
+      expect(text).to match(/Без ответа после AI.*\b1\b/)
+    end
+
+    it 'does not count when the contact replies after the assistant message' do
+      agent_bot = create(:agent_bot, account: account)
+      contact = create(:contact, account: account)
+      conv = create(:conversation, account: account, inbox: inbox, contact: contact, created_at: period_start + 5.minutes)
+
+      create(
+        :message,
+        account: account,
+        inbox: inbox,
+        conversation: conv,
+        message_type: 'outgoing',
+        sender: agent_bot,
+        created_at: period_start + 6.minutes
+      )
+      create(
+        :message,
+        account: account,
+        inbox: inbox,
+        conversation: conv,
+        message_type: 'incoming',
+        sender: contact,
+        created_at: period_start + 7.minutes
+      )
+
+      text = described_class.new(
+        account: account,
+        period_start: period_start,
+        period_end: period_end
+      ).perform
+
+      expect(text).to match(/Без ответа после AI.*\b0\b/)
+    end
+
     it 'does not count pure human threads without AI as escalation' do
       user = create(:user, account: account)
       conv = create(:conversation, account: account, inbox: inbox, created_at: period_start + 5.minutes)

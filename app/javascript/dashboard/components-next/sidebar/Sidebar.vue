@@ -606,6 +606,13 @@ const menuItems = computed(() => {
           icon: 'i-lucide-briefcase',
           to: accountScopedRoute('general_settings_index'),
         },
+        {
+          name: 'Settings Telegram report',
+          label: t('SIDEBAR.TELEGRAM_REPORT'),
+          icon: 'i-lucide-send',
+          activeOn: ['settings_telegram_report_index'],
+          to: accountScopedRoute('settings_telegram_report_index'),
+        },
         // {
         //   name: 'Settings Captain',
         //   label: t('SIDEBAR.CAPTAIN_AI'),

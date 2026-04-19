@@ -73,6 +73,7 @@ class Support::DailyTelegramReportBuilder
       ['Поступило', metrics[:total]],
       ['AI принял', metrics[:ai_accepted]],
       ['AI решил', metrics[:ai_resolved]],
+      ['Без ответа после AI', metrics[:no_reply_after_assistant]],
       ['Эскалация', metrics[:escalated]],
       ['Оператор решил', metrics[:operator_resolved]],
       ['Не решено', metrics[:unresolved]]
@@ -80,7 +81,7 @@ class Support::DailyTelegramReportBuilder
 
     stages.each_with_index.map do |(label, count), idx|
       line = format(
-        '%<label>-16s%<bar>s %<count>4d (%<pct>s)',
+        '%<label>-22s%<bar>s %<count>4d (%<pct>s)',
         label: label,
         bar: bar(count, metrics[:total]),
         count: count,
@@ -104,12 +105,14 @@ class Support::DailyTelegramReportBuilder
     metrics = blocks.pluck(:metrics)
     total = metrics.sum { |m| m[:total] }
     ai_resolved = metrics.sum { |m| m[:ai_resolved] }
+    no_reply = metrics.sum { |m| m[:no_reply_after_assistant].to_i }
     escalated = metrics.sum { |m| m[:escalated] }
     unresolved = metrics.sum { |m| m[:unresolved] }
 
     {
       total: total,
       ai_resolution_rate: pct(ai_resolved, total),
+      no_reply_after_assistant_rate: pct(no_reply, total),
       escalation_rate: pct(escalated, total),
       unresolved_rate: pct(unresolved, total)
     }
@@ -122,6 +125,7 @@ class Support::DailyTelegramReportBuilder
       separator,
       "Всего обращений: #{totals[:total]}",
       "AI resolution rate: #{totals[:ai_resolution_rate]}",
+      "Без ответа клиента после ассистента: #{totals[:no_reply_after_assistant_rate]}",
       "Эскалаций: #{totals[:escalation_rate]}",
       "Не решено: #{totals[:unresolved_rate]}"
     ].join("\n")

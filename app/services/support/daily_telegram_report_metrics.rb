@@ -20,6 +20,7 @@ class Support::DailyTelegramReportMetrics
       total: conversations.count,
       ai_accepted: ai_ids.size,
       ai_resolved: ai_resolved_count(inbox, conversation_ids),
+      no_reply_after_assistant: no_contact_reply_after_assistant_count(conversation_ids),
       escalated: escalated_ids.size,
       operator_resolved: operator_resolved_count(inbox, conversation_ids),
       unresolved: conversations.where.not(status: :resolved).count,
@@ -44,6 +45,35 @@ class Support::DailyTelegramReportMetrics
     ai = base.where(sender_type: AI_SENDERS).reorder(nil).pluck(:conversation_id).uniq
     operators = base.where(sender_type: 'User').reorder(nil).pluck(:conversation_id).uniq
     [ai, operators]
+  end
+
+  # Last public message is from AI assistant/bot and contact has not sent incoming after it.
+  def no_contact_reply_after_assistant_count(conversation_ids)
+    ids = Array(conversation_ids).map(&:to_i).uniq
+    return 0 if ids.empty?
+
+    placeholders = (['?'] * ids.size).join(',')
+    outgoing = Message.message_types[:outgoing]
+    sql = <<~SQL.squish
+      SELECT COUNT(*) FROM (
+        SELECT m.conversation_id
+        FROM messages m
+        INNER JOIN (
+          SELECT conversation_id, MAX(created_at) AS last_at
+          FROM messages
+          WHERE private = FALSE AND conversation_id IN (#{placeholders})
+          GROUP BY conversation_id
+        ) t ON t.conversation_id = m.conversation_id AND t.last_at = m.created_at
+        WHERE m.private = FALSE
+          AND m.message_type = ?
+          AND m.sender_type IN ('AgentBot', 'Captain::Assistant')
+          AND m.conversation_id IN (#{placeholders})
+      ) x
+    SQL
+    binds = [*ids, outgoing, *ids]
+    ActiveRecord::Base.connection.select_value(
+      ActiveRecord::Base.sanitize_sql_array([sql, *binds])
+    ).to_i
   end
 
   def handoff_conversation_ids(inbox)
@@ -116,6 +146,7 @@ class Support::DailyTelegramReportMetrics
       total: 0,
       ai_accepted: 0,
       ai_resolved: 0,
+      no_reply_after_assistant: 0,
       escalated: 0,
       operator_resolved: 0,
       unresolved: 0,
