@@ -15,11 +15,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # PRs need full history for base..head diff; shallow checkout on push (0 is falsy in GHA &&/||, so use fromJSON).
+          fetch-depth: ${{ fromJSON(github.event_name == 'pull_request' && '0' || '1') }}
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
       - name: Run Rubocop
-        run: bundle exec rubocop --parallel
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            mapfile -t files < <(git diff --name-only --diff-filter=ACMRT \
+              "${{ github.event.pull_request.base.sha }}" \
+              "${{ github.event.pull_request.head.sha }}" \
+              -- '*.rb' '*.rake' 'Gemfile' || true)
+            if [ "${#files[@]}" -eq 0 ]; then
+              echo "No Ruby files in this PR diff; skipping RuboCop."
+              exit 0
+            fi
+            bundle exec rubocop --parallel --force-exclusion "${files[@]}"
+          else
+            bundle exec rubocop --parallel
+          fi
 
   # Backend tests with parallelization
   backend-tests:

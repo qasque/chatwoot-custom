@@ -48,9 +48,7 @@ class SuperAdmin::TelegramReportSettingsController < SuperAdmin::ApplicationCont
     start_at, end_at = parse_send_window
     return { alert: :invalid_period } if start_at.blank? || end_at.blank?
     return { alert: :end_before_start } if start_at >= end_at
-    if (end_at - start_at) > TelegramReportSetting::MAX_MANUAL_RANGE_SECONDS
-      return { alert: :period_too_long }
-    end
+    return { alert: :period_too_long } if (end_at - start_at) > TelegramReportSetting::MAX_MANUAL_RANGE_SECONDS
 
     {
       account: account,
