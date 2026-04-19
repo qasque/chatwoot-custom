@@ -9,6 +9,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# One active run per ref: newer pushes cancel older queued/in-progress runs (frees runner slots).
+concurrency:
+  group: foss-ce-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Отдельный workflow: .github/workflows/frontend-fe.yml (eslint + vitest без дубля pnpm install)
   lint-backend:
@@ -39,8 +44,9 @@ jobs:
             bundle exec rubocop --parallel
           fi
 
-  # Backend tests with parallelization
+  # Backend tests with parallelization (after lint: avoids 17 simultaneous jobs and skips tests if RuboCop fails)
   backend-tests:
+    needs: lint-backend
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
