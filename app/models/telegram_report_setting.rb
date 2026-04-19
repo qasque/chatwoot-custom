@@ -31,7 +31,7 @@ class TelegramReportSetting < ApplicationRecord
   def timezone_must_be_recognized
     return if timezone.blank?
 
-    errors.add(:timezone, 'is not a valid time zone') unless ActiveSupport::TimeZone[timezone].present?
+    errors.add(:timezone, 'is not a valid time zone') if ActiveSupport::TimeZone[timezone].blank?
   end
 
   def inbox_ids_belong_to_account

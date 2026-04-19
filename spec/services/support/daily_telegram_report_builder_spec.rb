@@ -25,7 +25,7 @@ RSpec.describe Support::DailyTelegramReportBuilder do
     end
 
     it 'limits blocks to selected inbox ids' do
-      inbox_a = create(:inbox, account: account, name: 'A')
+      create(:inbox, account: account, name: 'A')
       inbox_b = create(:inbox, account: account, name: 'B')
 
       text = described_class.new(

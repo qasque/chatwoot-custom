@@ -21,7 +21,8 @@ class SuperAdmin::TelegramReportSettingsController < SuperAdmin::ApplicationCont
     @setting.assign_attributes(setting_params)
 
     if @setting.save
-      redirect_to super_admin_telegram_report_setting_path, notice: 'Telegram report settings saved.'
+      redirect_to super_admin_telegram_report_setting_path,
+                  notice: I18n.t('super_admin.telegram_report_settings.saved')
     else
       @accounts = Account.order(:name)
       @inboxes = inboxes_for(@setting.account_id)
@@ -30,49 +31,59 @@ class SuperAdmin::TelegramReportSettingsController < SuperAdmin::ApplicationCont
   end
 
   def send_now
-    account = Account.find_by(id: params[:account_id])
-    if account.blank?
-      redirect_to super_admin_telegram_report_setting_path, alert: 'Select a valid account.'
-      return
-    end
+    outcome = validate_send_now
+    return redirect_send_now_alert(outcome[:alert]) if outcome[:alert]
 
-    start_at, end_at = parse_send_window
-    if start_at.blank? || end_at.blank?
-      redirect_to super_admin_telegram_report_setting_path, alert: 'Enter a valid period (start and end).'
-      return
-    end
-
-    if start_at >= end_at
-      redirect_to super_admin_telegram_report_setting_path, alert: 'End time must be after start time.'
-      return
-    end
-
-    if (end_at - start_at) > TelegramReportSetting::MAX_MANUAL_RANGE_SECONDS
-      redirect_to super_admin_telegram_report_setting_path, alert: 'Period is too long (maximum 31 days).'
-      return
-    end
-
-    inbox_ids = Array(params[:inbox_ids]).map(&:presence).compact.map(&:to_i)
-
-    Support::DailyTelegramReportJob.perform_later(
-      period_start_iso: start_at.iso8601,
-      period_end_iso: end_at.iso8601,
-      inbox_ids: inbox_ids,
-      account_id: account.id
-    )
-
+    enqueue_send_now(outcome)
     redirect_to super_admin_telegram_report_setting_path,
-                notice: 'Report queued. It will be sent to Telegram shortly.'
+                notice: I18n.t('super_admin.telegram_report_settings.send_now_queued')
   end
 
   private
+
+  def validate_send_now
+    account = Account.find_by(id: params[:account_id])
+    return { alert: :select_account } if account.blank?
+
+    start_at, end_at = parse_send_window
+    return { alert: :invalid_period } if start_at.blank? || end_at.blank?
+    return { alert: :end_before_start } if start_at >= end_at
+    if (end_at - start_at) > TelegramReportSetting::MAX_MANUAL_RANGE_SECONDS
+      return { alert: :period_too_long }
+    end
+
+    {
+      account: account,
+      start_at: start_at,
+      end_at: end_at,
+      inbox_ids: send_now_inbox_ids
+    }
+  end
+
+  def enqueue_send_now(outcome)
+    Support::DailyTelegramReportJob.perform_later(
+      period_start_iso: outcome[:start_at].iso8601,
+      period_end_iso: outcome[:end_at].iso8601,
+      inbox_ids: outcome[:inbox_ids],
+      account_id: outcome[:account].id
+    )
+  end
+
+  def redirect_send_now_alert(key)
+    redirect_to super_admin_telegram_report_setting_path,
+                alert: I18n.t(key, scope: 'super_admin.telegram_report_settings.send_now')
+  end
+
+  def send_now_inbox_ids
+    Array(params[:inbox_ids]).filter_map(&:presence).map(&:to_i)
+  end
 
   def setting_params
     p = params.require(:telegram_report_setting).permit(
       :account_id, :schedule_hour, :schedule_minute, :timezone, inbox_ids: []
     )
     p[:account_id] = nil if p[:account_id].blank?
-    p[:inbox_ids] = Array(p[:inbox_ids]).map(&:presence).compact.map(&:to_i)
+    p[:inbox_ids] = Array(p[:inbox_ids]).filter_map(&:presence).map(&:to_i)
     p
   end
 

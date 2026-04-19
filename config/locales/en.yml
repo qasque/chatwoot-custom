@@ -491,3 +491,13 @@ en:
       enabled_requires_message_and_inboxes: 'Message text and at least one inbox are required when outage auto-reply is enabled.'
     outage_broadcast:
       enqueued: 'Outage notices are being sent in the background.'
+  super_admin:
+    telegram_report_settings:
+      saved: 'Telegram report settings saved.'
+      send_now_queued: 'Report queued. It will be sent to Telegram shortly.'
+      send_now:
+        select_account: 'Select a valid account.'
+        invalid_period: 'Enter a valid period (start and end).'
+        end_before_start: 'End time must be after start time.'
+        period_too_long: 'Period is too long (maximum 31 days).'
+
