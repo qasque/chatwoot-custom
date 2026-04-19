@@ -54,5 +54,7 @@ Rails.application.reloader.to_prepare do
     %w[bulk_auto_assignment_job].each { |name| Sidekiq::Cron::Job.destroy(name) }
 
     Sidekiq::Cron::Job.load_from_hash!(schedule, source: 'schedule')
+
+    Support::TelegramReportScheduleSync.apply_from_database
   end
 end

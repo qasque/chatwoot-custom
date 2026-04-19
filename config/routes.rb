@@ -645,6 +645,10 @@ Rails.application.routes.draw do
       resources :platform_apps, only: [:index, :new, :create, :show, :edit, :update, :destroy]
       resource :instance_status, only: [:show]
 
+      resource :telegram_report_setting, only: %i[show update] do
+        post :send_now, on: :member
+      end
+
       resource :settings, only: [:show] do
         get :refresh, on: :collection
       end

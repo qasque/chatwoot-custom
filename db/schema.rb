@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_24_102005) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_19_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1196,6 +1196,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_24_102005) do
     t.integer "taggings_count", default: 0
     t.index "lower((name)::text) gin_trgm_ops", name: "tags_name_trgm_idx", using: :gin
     t.index ["name"], name: "index_tags_on_name", unique: true
+  end
+
+  create_table "telegram_report_settings", force: :cascade do |t|
+    t.bigint "account_id"
+    t.integer "schedule_hour", default: 9, null: false
+    t.integer "schedule_minute", default: 0, null: false
+    t.string "timezone", default: "Europe/Moscow", null: false
+    t.jsonb "inbox_ids", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "team_members", force: :cascade do |t|

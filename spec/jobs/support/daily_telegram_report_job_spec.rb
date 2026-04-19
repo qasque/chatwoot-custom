@@ -50,6 +50,8 @@ RSpec.describe Support::DailyTelegramReportJob, type: :job do
     expect(payload[:attempt]).to eq(1)
     # Job serializes report_end with zone (e.g. Europe/Moscow); string form may differ from let(:report_end).iso8601 in UTC.
     expect(Time.zone.parse(payload[:report_end_iso])).to be_within(1.second).of(report_end)
+    expect(payload[:period_start_iso]).to be_nil
+    expect(payload[:period_end_iso]).to be_nil
   end
 
   it 'does not schedule retry on missing telegram configuration' do

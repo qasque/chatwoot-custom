@@ -3,10 +3,12 @@
 class Support::DailyTelegramReportBuilder
   BAR_WIDTH = 20
 
-  def initialize(account:, period_start:, period_end:)
+  def initialize(account:, period_start:, period_end:, inbox_ids: nil, display_timezone: 'Europe/Moscow')
     @account = account
     @period_start = period_start
     @period_end = period_end
+    @inbox_ids = inbox_ids
+    @display_timezone = display_timezone
   end
 
   def perform
@@ -21,11 +23,16 @@ class Support::DailyTelegramReportBuilder
   attr_reader :account, :period_start, :period_end
 
   def inboxes
-    @inboxes ||= account.inboxes.order(:name)
+    @inboxes ||= begin
+      scope = account.inboxes.order(:name)
+      scope = scope.where(id: @inbox_ids) if @inbox_ids.present?
+      scope
+    end
   end
 
   def header
-    "<b>\u{1F4CA} Техподдержка | #{fmt_time(period_start)} → #{fmt_time(period_end)} (МСК)</b>"
+    tz = h(@display_timezone.to_s)
+    "<b>\u{1F4CA} Техподдержка | #{fmt_time(period_start)} → #{fmt_time(period_end)} (#{tz})</b>"
   end
 
   def build_inbox_block(inbox)
@@ -151,7 +158,7 @@ class Support::DailyTelegramReportBuilder
   end
 
   def fmt_time(time)
-    time.in_time_zone('Europe/Moscow').strftime('%d.%m %H:%M')
+    time.in_time_zone(@display_timezone).strftime('%d.%m %H:%M')
   end
 
   def separator

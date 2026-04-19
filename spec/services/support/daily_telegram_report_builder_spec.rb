@@ -19,8 +19,24 @@ RSpec.describe Support::DailyTelegramReportBuilder do
       ).perform
 
       expect(text).to include('Техподдержка')
+      expect(text).to include('Europe/Moscow')
       expect(text).to include('Итого по всем сервисам')
       expect(text).to include('Всего обращений: 0')
+    end
+
+    it 'limits blocks to selected inbox ids' do
+      inbox_a = create(:inbox, account: account, name: 'A')
+      inbox_b = create(:inbox, account: account, name: 'B')
+
+      text = described_class.new(
+        account: account,
+        period_start: period_start,
+        period_end: period_end,
+        inbox_ids: [inbox_b.id]
+      ).perform
+
+      expect(text).to include('Сервис: B')
+      expect(text).not_to include('Сервис: A')
     end
 
     it 'includes topic from custom_attributes in top topics' do

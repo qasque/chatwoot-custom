@@ -1,0 +1,120 @@
+<% content_for(:title) { 'Telegram support report' } %>
+
+<header class="flex px-8 py-4 items-center border-b border-n-weak" role="banner">
+  <div class="border border-n-weak mr-4 p-2 rounded-full">
+    <svg width="24" height="24"><use xlink:href="#icon-bar-chart-line" /></svg>
+  </div>
+  <div class="flex flex-col h-14 justify-center">
+    <h1 class="text-base font-medium leading-6 text-n-slate-12" id="page-title">
+      <%= content_for(:title) %>
+    </h1>
+    <p class="text-sm font-normal leading-5 text-slate-500 m-0">
+      Schedule the daily Telegram analytics report, choose inboxes, or send a custom-range report on demand.
+    </p>
+  </div>
+</header>
+
+<section class="main-content__body px-8 py-6 space-y-10">
+  <div class="outline outline-1 outline-n-container rounded-lg p-4 max-w-3xl">
+    <h2 class="text-sm font-medium text-n-slate-12 mb-3">Account &amp; inboxes for scheduled report</h2>
+    <%= form_with url: super_admin_telegram_report_setting_path, method: :get, local: true, class: 'mb-4' do %>
+      <label class="block text-xs text-slate-600 mb-1">Preview inboxes for account</label>
+      <%= select_tag :account_id,
+          options_from_collection_for_select(@accounts, :id, :name, params[:account_id].presence || @setting.account_id),
+          include_blank: 'Select account',
+          class: 'border border-n-weak rounded px-2 py-1.5 text-sm w-full max-w-md',
+          onchange: 'this.form.submit()' %>
+    <% end %>
+
+    <%= form_with model: @setting, url: super_admin_telegram_report_setting_path, method: :patch, local: true, class: 'space-y-4' do |f| %>
+      <div>
+        <%= f.label :account_id, 'Account for scheduled report', class: 'block text-xs text-slate-600 mb-1' %>
+        <%= f.collection_select :account_id, @accounts, :id, :name,
+            { include_blank: 'Default (TELEGRAM_REPORT_ACCOUNT_ID or first account)' },
+            class: 'border border-n-weak rounded px-2 py-1.5 text-sm w-full max-w-md' %>
+      </div>
+
+      <div class="flex flex-wrap gap-4 items-end">
+        <div>
+          <%= f.label :schedule_hour, 'Local hour (0–23)', class: 'block text-xs text-slate-600 mb-1' %>
+          <%= f.number_field :schedule_hour, min: 0, max: 23, class: 'border border-n-weak rounded px-2 py-1.5 text-sm w-24' %>
+        </div>
+        <div>
+          <%= f.label :schedule_minute, 'Minute (0–59)', class: 'block text-xs text-slate-600 mb-1' %>
+          <%= f.number_field :schedule_minute, min: 0, max: 59, class: 'border border-n-weak rounded px-2 py-1.5 text-sm w-24' %>
+        </div>
+        <div class="flex-grow min-w-[12rem]">
+          <%= f.label :timezone, 'Time zone', class: 'block text-xs text-slate-600 mb-1' %>
+          <%= f.select :timezone, ActiveSupport::TimeZone.all.map(&:name).sort,
+              {},
+              class: 'border border-n-weak rounded px-2 py-1.5 text-sm w-full max-w-md' %>
+        </div>
+      </div>
+
+      <div>
+        <span class="block text-xs text-slate-600 mb-2">Inboxes to include (leave empty for all)</span>
+        <% if @inboxes.any? %>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto border border-n-weak rounded p-3">
+            <% @inboxes.each do |inbox| %>
+              <label class="flex items-center gap-2 text-sm">
+                <%= check_box_tag 'telegram_report_setting[inbox_ids][]', inbox.id, @setting.inbox_ids.map(&:to_i).include?(inbox.id), id: "inbox_#{inbox.id}" %>
+                <%= label_tag "inbox_#{inbox.id}", inbox.name, class: 'm-0' %>
+              </label>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-slate-500 m-0">Select an account to list inboxes.</p>
+        <% end %>
+        <%= hidden_field_tag 'telegram_report_setting[inbox_ids][]', '' %>
+      </div>
+
+      <p class="text-xs text-slate-500 m-0">
+        The scheduled job still uses your Telegram bot env vars (<code>TELEGRAM_REPORT_BOT_TOKEN</code> / <code>TELEGRAM_REPORT_CHAT_ID</code> or legacy names).
+        Saving updates the Sidekiq cron for this instance (minute hour, in the time zone above).
+      </p>
+
+      <%= f.submit 'Save schedule and inbox filters', class: 'bg-woot-500 hover:bg-woot-600 text-white text-sm font-medium px-4 py-2 rounded cursor-pointer border-0' %>
+    <% end %>
+  </div>
+
+  <div class="outline outline-1 outline-n-container rounded-lg p-4 max-w-3xl">
+    <h2 class="text-sm font-medium text-n-slate-12 mb-1">Send report now</h2>
+    <p class="text-xs text-slate-500 mb-4 m-0">
+      Custom time range (uses application <%= Time.zone.name %> for parsing). Uncheck all inboxes to include every inbox for the selected account.
+    </p>
+
+    <%= form_with url: send_now_super_admin_telegram_report_setting_path, method: :post, local: true, class: 'space-y-4' do %>
+      <div>
+        <%= label_tag :account_id, 'Account', class: 'block text-xs text-slate-600 mb-1' %>
+        <%= select_tag :account_id,
+            options_from_collection_for_select(@accounts, :id, :name, @setting.account_id),
+            include_blank: 'Select account',
+            class: 'border border-n-weak rounded px-2 py-1.5 text-sm w-full max-w-md' %>
+      </div>
+      <div class="flex flex-wrap gap-4">
+        <div>
+          <%= label_tag :period_start, 'Period start', class: 'block text-xs text-slate-600 mb-1' %>
+          <%= datetime_field_tag :period_start, params[:period_start], class: 'border border-n-weak rounded px-2 py-1.5 text-sm' %>
+        </div>
+        <div>
+          <%= label_tag :period_end, 'Period end', class: 'block text-xs text-slate-600 mb-1' %>
+          <%= datetime_field_tag :period_end, params[:period_end], class: 'border border-n-weak rounded px-2 py-1.5 text-sm' %>
+        </div>
+      </div>
+      <% if @inboxes.any? %>
+        <div>
+          <span class="block text-xs text-slate-600 mb-2">Inboxes (optional)</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto border border-n-weak rounded p-3">
+            <% @inboxes.each do |inbox| %>
+              <label class="flex items-center gap-2 text-sm">
+                <%= check_box_tag 'inbox_ids[]', inbox.id, false, id: "send_inbox_#{inbox.id}" %>
+                <%= label_tag "send_inbox_#{inbox.id}", inbox.name, class: 'm-0' %>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <%= submit_tag 'Send report now', class: 'bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium px-4 py-2 rounded cursor-pointer border-0' %>
+    <% end %>
+  </div>
+</section>
