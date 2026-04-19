@@ -34,7 +34,7 @@ class Support::DailyTelegramReportMetrics
   attr_reader :account, :period_start, :period_end
 
   def outgoing_conversation_ids_split(conversation_ids)
-    scope = Message.where(
+    scope = Message.unscope(:order).where(
       conversation_id: conversation_ids,
       private: false,
       message_type: Message.message_types[:outgoing]
