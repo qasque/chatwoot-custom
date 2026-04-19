@@ -34,14 +34,15 @@ class Support::DailyTelegramReportMetrics
   attr_reader :account, :period_start, :period_end
 
   def outgoing_conversation_ids_split(conversation_ids)
-    # Avoid SQL DISTINCT + Message default_scope ORDER BY (PostgreSQL rejects that).
-    base = Message.unscope(:order).where(
+    # Message has `default_scope { order(created_at: :asc) }`; combined with AR internals
+    # that can emit DISTINCT, PostgreSQL errors. Use unscoped + explicit reorder(nil).
+    base = Message.unscoped.where(
       conversation_id: conversation_ids,
       private: false,
       message_type: Message.message_types[:outgoing]
     )
-    ai = base.where(sender_type: AI_SENDERS).pluck(:conversation_id).uniq
-    operators = base.where(sender_type: 'User').pluck(:conversation_id).uniq
+    ai = base.where(sender_type: AI_SENDERS).reorder(nil).pluck(:conversation_id).uniq
+    operators = base.where(sender_type: 'User').reorder(nil).pluck(:conversation_id).uniq
     [ai, operators]
   end
 
