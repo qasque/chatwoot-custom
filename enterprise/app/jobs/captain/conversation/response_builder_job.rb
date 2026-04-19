@@ -55,6 +55,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
         Rails.logger.info("[CAPTAIN][ResponseBuilderJob] Incrementing response usage for #{account.id}")
         account.increment_response_usage
       end
+      maybe_resolve_after_ai_response
     end
   end
 
@@ -153,5 +154,31 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   def conversation_pending?
     status = Conversation.uncached { Conversation.where(id: @conversation.id).pick(:status) }
     status == 'pending' || status == Conversation.statuses[:pending]
+  end
+
+  # When Captain auto-resolve evaluation is enabled, re-check completion after each AI reply
+  # so conversations close as soon as the model deems the customer's issue addressed.
+  def maybe_resolve_after_ai_response
+    return if account.captain_auto_resolve_disabled?
+    return unless account.feature_enabled?('captain_tasks') && account.captain_auto_resolve_evaluated?
+
+    @conversation.reload
+    return unless @conversation.pending?
+
+    evaluation = Captain::ConversationCompletionService.new(
+      account: account,
+      conversation_display_id: @conversation.display_id
+    ).perform
+
+    return unless evaluation[:complete]
+
+    Captain::InferenceConversationResolutionService.new(
+      conversation: @conversation,
+      inbox: @inbox,
+      evaluation_reason: evaluation[:reason]
+    ).perform
+  rescue StandardError => e
+    Rails.logger.error("[CAPTAIN][ResponseBuilderJob] maybe_resolve_after_ai_response: #{e.message}")
+    ChatwootExceptionTracker.new(e, account: account).capture_exception
   end
 end
