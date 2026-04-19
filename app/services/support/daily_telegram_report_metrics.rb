@@ -34,13 +34,14 @@ class Support::DailyTelegramReportMetrics
   attr_reader :account, :period_start, :period_end
 
   def outgoing_conversation_ids_split(conversation_ids)
-    scope = Message.unscope(:order).where(
+    # Avoid SQL DISTINCT + Message default_scope ORDER BY (PostgreSQL rejects that).
+    base = Message.unscope(:order).where(
       conversation_id: conversation_ids,
       private: false,
       message_type: Message.message_types[:outgoing]
     )
-    ai = scope.where(sender_type: AI_SENDERS).distinct.pluck(:conversation_id)
-    operators = scope.where(sender_type: 'User').distinct.pluck(:conversation_id)
+    ai = base.where(sender_type: AI_SENDERS).pluck(:conversation_id).uniq
+    operators = base.where(sender_type: 'User').pluck(:conversation_id).uniq
     [ai, operators]
   end
 
