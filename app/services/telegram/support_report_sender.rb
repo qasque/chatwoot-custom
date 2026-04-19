@@ -12,9 +12,18 @@ class Telegram::SupportReportSender
 
   TELEGRAM_API_BASE = 'https://api.telegram.org'
 
-  def initialize(bot_token: ENV.fetch('TELEGRAM_BOT_TOKEN', ''), chat_id: ENV.fetch('TELEGRAM_CHAT_ID', ''))
-    @bot_token = bot_token.to_s
-    @chat_id = chat_id.to_s
+  # Prefer TELEGRAM_REPORT_* so a second support bot can keep TELEGRAM_BOT_TOKEN for other integrations.
+  def self.report_bot_token
+    ENV['TELEGRAM_REPORT_BOT_TOKEN'].presence || ENV.fetch('TELEGRAM_BOT_TOKEN', '')
+  end
+
+  def self.report_chat_id
+    ENV['TELEGRAM_REPORT_CHAT_ID'].presence || ENV.fetch('TELEGRAM_CHAT_ID', '')
+  end
+
+  def initialize(bot_token: nil, chat_id: nil)
+    @bot_token = (bot_token.presence || self.class.report_bot_token).to_s
+    @chat_id = (chat_id.presence || self.class.report_chat_id).to_s
   end
 
   def perform(html_text)
@@ -45,6 +54,8 @@ class Telegram::SupportReportSender
   def validate_config!
     return if @bot_token.present? && @chat_id.present?
 
-    raise DeliveryError, 'TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be present'
+    raise DeliveryError,
+          'TELEGRAM_REPORT_BOT_TOKEN and TELEGRAM_REPORT_CHAT_ID must be present ' \
+          '(or legacy TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID)'
   end
 end

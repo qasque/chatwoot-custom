@@ -44,7 +44,7 @@ RSpec.describe Telegram::SupportReportSender do
     it 'raises DeliveryError when token or chat is missing' do
       expect do
         described_class.new(bot_token: '', chat_id: chat_id).perform('x')
-      end.to raise_error(described_class::DeliveryError, /TELEGRAM_BOT_TOKEN/)
+      end.to raise_error(described_class::DeliveryError, /TELEGRAM_REPORT_BOT_TOKEN/)
     end
   end
 end

@@ -53,7 +53,8 @@ RSpec.describe Support::DailyTelegramReportJob, type: :job do
   it 'does not schedule retry on missing telegram configuration' do
     allow(sender).to receive(:perform).and_raise(
       Telegram::SupportReportSender::DeliveryError.new(
-        'TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be present'
+        'TELEGRAM_REPORT_BOT_TOKEN and TELEGRAM_REPORT_CHAT_ID must be present ' \
+        '(or legacy TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID)'
       )
     )
 

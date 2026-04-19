@@ -66,7 +66,9 @@ class Support::DailyTelegramReportJob < ApplicationJob
   end
 
   def retryable_delivery_error?(error)
-    return false if error.message.to_s.include?('TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be present')
+    msg = error.message.to_s
+    return false if msg.include?('TELEGRAM_REPORT_BOT_TOKEN and TELEGRAM_REPORT_CHAT_ID must be present')
+    return false if msg.include?('TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be present')
 
     code = error.status_code.to_i
     return false if [400, 401, 403].include?(code)
