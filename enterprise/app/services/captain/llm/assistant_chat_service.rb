@@ -8,6 +8,7 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
     @conversation = conversation
     @conversation_id = conversation&.display_id
     @source = source
+    @traffic_source_prompt = resolve_traffic_source_prompt
 
     @messages = [system_message]
     @response = ''
@@ -30,6 +31,9 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
   private
 
   def build_tools
+    # When source-specific prompt exists, prefer deterministic prompt-only answers.
+    return [] if @traffic_source_prompt.present?
+
     tools = [Captain::Tools::SearchDocumentationService.new(@assistant, user: nil)]
     return tools unless custom_tools_enabled?
 
@@ -44,7 +48,8 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
       content: Captain::Llm::SystemPromptsService.assistant_response_generator(
         @assistant.name, @assistant.config['product_name'], @assistant.config,
         contact: contact_attributes,
-        custom_tools: custom_tools_metadata
+        custom_tools: custom_tools_metadata,
+        source_prompt: @traffic_source_prompt
       )
     }
   end
@@ -76,5 +81,18 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
 
   def feature_name
     'assistant'
+  end
+
+  def resolve_traffic_source_prompt
+    return nil unless @conversation
+
+    source_id = @conversation.contact_inbox&.source_id
+    return nil if source_id.blank?
+
+    TrafficSourcePrompt.for_source(
+      account_id: @assistant.account_id,
+      inbox_id: @conversation.inbox_id,
+      source_id: source_id
+    ).pick(:prompt_text)
   end
 end
