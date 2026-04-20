@@ -17,8 +17,9 @@ class Support::TelegramReportScheduleSync
     job = Sidekiq::Cron::Job.find(CRON_JOB_NAME)
     return if job.blank?
 
-    job.cron = "#{setting.schedule_minute} #{setting.schedule_hour} * * *"
-    job.tz = setting.timezone.presence || 'Europe/Moscow'
+    zone = setting.timezone.presence || 'Europe/Moscow'
+    # sidekiq-cron 2.x + Fugit: timezone is part of the cron string, not job.tz=
+    job.cron = "#{setting.schedule_minute} #{setting.schedule_hour} * * * #{zone}"
     job.save
   rescue StandardError => e
     Rails.logger.warn("[TelegramReportScheduleSync] skipped: #{e.class}: #{e.message}")

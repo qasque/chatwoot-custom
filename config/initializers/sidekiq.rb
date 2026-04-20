@@ -41,8 +41,12 @@ Rails.application.reloader.to_prepare do
     schedule = YAML.load_file(schedule_file)
 
     support_job = schedule['support_daily_telegram_report_job'] || {}
-    support_job['cron'] = ENV.fetch('REPORT_CRON', support_job['cron'] || '0 9 * * *')
-    support_job['tz'] = ENV.fetch('REPORT_TIMEZONE', support_job['tz'] || 'Europe/Moscow')
+    legacy_tz = support_job.delete('tz')
+    tz = ENV.fetch('REPORT_TIMEZONE', legacy_tz.presence || 'Europe/Moscow')
+    cron_template = ENV['REPORT_CRON'].presence || support_job['cron'].presence || '0 9 * * *'
+    # Fugit cron: "m h dom mon dow IANA/Zone"; strip any trailing zone then apply tz (env or default).
+    cron_base = cron_template.sub(%r{\s+[A-Za-z_]+(?:/[A-Za-z_/]+)+\s*\z}, '').strip
+    support_job['cron'] = "#{cron_base} #{tz}"
     support_job['class'] ||= 'Support::DailyTelegramReportJob'
     support_job['queue'] ||= 'scheduled_jobs'
     schedule['support_daily_telegram_report_job'] = support_job

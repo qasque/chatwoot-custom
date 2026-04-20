@@ -70,8 +70,8 @@ remove_orphan_conversations_job:
   queue: housekeeping
 
 # executed daily at 09:00 Europe/Moscow; cron/timezone can be overridden by REPORT_CRON/REPORT_TIMEZONE
+# (timezone is embedded in cron for sidekiq-cron + Fugit — separate `tz` key is not supported on Job)
 support_daily_telegram_report_job:
-  cron: '0 9 * * *'
-  tz: 'Europe/Moscow'
+  cron: '0 9 * * * Europe/Moscow'
   class: 'Support::DailyTelegramReportJob'
   queue: scheduled_jobs
