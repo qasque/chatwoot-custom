@@ -22,7 +22,9 @@ module Llm::Config
     def with_api_key(api_key, api_base: nil)
       context = RubyLLM.context do |config|
         config.openai_api_key = api_key
+        config.deepseek_api_key = api_key
         config.openai_api_base = api_base
+        config.deepseek_api_base = api_base
       end
 
       yield context
@@ -32,8 +34,17 @@ module Llm::Config
 
     def configure_ruby_llm
       RubyLLM.configure do |config|
-        config.openai_api_key = system_api_key if system_api_key.present?
-        config.openai_api_base = openai_endpoint.chomp('/') if openai_endpoint.present?
+        if system_api_key.present?
+          config.openai_api_key = system_api_key
+          config.deepseek_api_key = system_api_key
+        end
+
+        if openai_endpoint.present?
+          endpoint = openai_endpoint.chomp('/')
+          config.openai_api_base = endpoint
+          config.deepseek_api_base = endpoint
+        end
+
         config.logger = Rails.logger
       end
     end
