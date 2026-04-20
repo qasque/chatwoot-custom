@@ -635,8 +635,30 @@
       "BUSINESS_HOURS": "Business Hours",
       "WIDGET_BUILDER": "Widget Builder",
       "BOT_CONFIGURATION": "Bot Configuration",
+      "AI_PROMPTS": "AI Prompts",
       "ACCOUNT_HEALTH": "Account Health",
       "CSAT": "CSAT"
+    },
+    "AI_PROMPTS": {
+      "SOURCE_ID_LABEL": "Traffic source ID",
+      "SOURCE_ID_HELP": "Set source_id and manage its AI prompt file.",
+      "LOAD": "Load prompt",
+      "UPLOAD_LABEL": "Upload prompt file",
+      "UPLOAD_HELP": "Allowed formats: .txt, .doc, .docx, .pdf. Upload replaces existing prompt for this source.",
+      "UPLOAD_ACTION": "Upload prompt",
+      "DOWNLOAD_ACTION": "Download prompt",
+      "STATUS_TITLE": "Prompt status",
+      "LOADING": "Loading...",
+      "NO_PROMPT": "Prompt is not loaded for this source. AI assistant is inactive and conversation will be handed off to operator.",
+      "FILE_NAME": "Prompt file",
+      "UPDATED_AT": "Last updated",
+      "KNOWN_SOURCES": "Known sources",
+      "UPLOAD_SUCCESS": "Prompt uploaded successfully",
+      "ERRORS": {
+        "SOURCE_REQUIRED": "source_id is required",
+        "FILE_REQUIRED": "Please choose a file to upload",
+        "UNSUPPORTED_FILE": "Unsupported file format. Use .txt, .doc, .docx or .pdf"
+      }
     },
     "CHANNEL_PREFERENCES": "Channel Preferences",
     "WIDGET_FEATURES": "Widget features",

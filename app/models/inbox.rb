@@ -61,6 +61,7 @@ class Inbox < ApplicationRecord
 
   has_many :campaigns, dependent: :destroy_async
   has_many :contact_inboxes, dependent: :destroy_async
+  has_many :traffic_source_prompts, dependent: :destroy_async
   has_many :contacts, through: :contact_inboxes
 
   has_many :inbox_members, dependent: :destroy_async

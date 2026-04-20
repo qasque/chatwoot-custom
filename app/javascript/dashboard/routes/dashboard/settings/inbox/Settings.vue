@@ -23,6 +23,7 @@ import GreetingsEditor from 'shared/components/GreetingsEditor.vue';
 import ConfigurationPage from './settingsPage/ConfigurationPage.vue';
 import CustomerSatisfactionPage from './settingsPage/CustomerSatisfactionPage.vue';
 import CollaboratorsPage from './settingsPage/CollaboratorsPage.vue';
+import TrafficSourcePromptsPage from './settingsPage/TrafficSourcePromptsPage.vue';
 import BotConfiguration from './components/BotConfiguration.vue';
 import AccountHealth from './components/AccountHealth.vue';
 import { FEATURE_FLAGS } from '../../../../featureFlags';
@@ -45,6 +46,7 @@ export default {
   components: {
     BotConfiguration,
     CollaboratorsPage,
+    TrafficSourcePromptsPage,
     ConfigurationPage,
     CustomerSatisfactionPage,
     FacebookReauthorize,
@@ -195,6 +197,16 @@ export default {
           {
             key: 'bot-configuration',
             name: this.$t('INBOX_MGMT.TABS.BOT_CONFIGURATION'),
+          },
+        ];
+      }
+
+      if (this.isFeatureEnabledonAccount(this.accountId, FEATURE_FLAGS.AGENT_BOTS)) {
+        visibleToAllChannelTabs = [
+          ...visibleToAllChannelTabs,
+          {
+            key: 'ai-prompts',
+            name: this.$t('INBOX_MGMT.TABS.AI_PROMPTS'),
           },
         ];
       }
@@ -1226,6 +1238,9 @@ export default {
         </div>
         <div v-if="selectedTabKey === 'bot-configuration'">
           <BotConfiguration :inbox="inbox" />
+        </div>
+        <div v-if="selectedTabKey === 'ai-prompts'">
+          <TrafficSourcePromptsPage :inbox="inbox" />
         </div>
         <div v-if="selectedTabKey === 'whatsapp-health'">
           <AccountHealth

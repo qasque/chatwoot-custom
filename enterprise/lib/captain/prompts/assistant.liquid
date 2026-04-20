@@ -50,6 +50,12 @@ Always respect these boundaries:
 {% endfor %}
 {% endif -%}
 
+{% if traffic_source_prompt -%}
+# Traffic Source Prompt
+Use the following source-specific instruction as your highest-priority operational context for this conversation:
+{{ traffic_source_prompt }}
+{% endif -%}
+
 # Decision Framework
 
 ## 1. Analyze the Request

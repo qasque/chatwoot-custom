@@ -627,8 +627,30 @@
       "BUSINESS_HOURS": "Время работы",
       "WIDGET_BUILDER": "Конструктор виджетов",
       "BOT_CONFIGURATION": "Конфигурация бота",
+      "AI_PROMPTS": "Промты AI",
       "ACCOUNT_HEALTH": "Здоровье аккаунта",
       "CSAT": "CSAT"
+    },
+    "AI_PROMPTS": {
+      "SOURCE_ID_LABEL": "ID источника трафика",
+      "SOURCE_ID_HELP": "Укажите source_id и управляйте файлом промта для этого источника.",
+      "LOAD": "Загрузить текущий промт",
+      "UPLOAD_LABEL": "Загрузка файла промта",
+      "UPLOAD_HELP": "Допустимые форматы: .txt, .doc, .docx, .pdf. Повторная загрузка заменяет текущий промт для источника.",
+      "UPLOAD_ACTION": "Загрузить промт",
+      "DOWNLOAD_ACTION": "Скачать промт",
+      "STATUS_TITLE": "Состояние промта",
+      "LOADING": "Загрузка...",
+      "NO_PROMPT": "Промт для этого источника не загружен. AI-ассистент неактивен, диалог переводится на оператора.",
+      "FILE_NAME": "Файл промта",
+      "UPDATED_AT": "Обновлено",
+      "KNOWN_SOURCES": "Известные источники",
+      "UPLOAD_SUCCESS": "Промт успешно загружен",
+      "ERRORS": {
+        "SOURCE_REQUIRED": "Необходимо указать source_id",
+        "FILE_REQUIRED": "Выберите файл для загрузки",
+        "UNSUPPORTED_FILE": "Неподдерживаемый формат файла. Используйте .txt, .doc, .docx или .pdf"
+      }
     },
     "CHANNEL_PREFERENCES": "Настройки канала",
     "WIDGET_FEATURES": "Функции виджета",

@@ -16,7 +16,7 @@ class Captain::Assistant::AgentRunnerService
     custom_attributes additional_attributes
   ].freeze
 
-  CONTACT_INBOX_STATE_ATTRIBUTES = %i[id hmac_verified].freeze
+  CONTACT_INBOX_STATE_ATTRIBUTES = %i[id hmac_verified source_id].freeze
 
   CAMPAIGN_STATE_ATTRIBUTES = %i[id title message campaign_type description].freeze
   def initialize(assistant:, conversation: nil, callbacks: {}, source: nil)
@@ -117,6 +117,7 @@ class Captain::Assistant::AgentRunnerService
     state[:source] = @source if @source.present?
 
     build_conversation_state(state) if @conversation
+    state[:traffic_source_prompt] = traffic_source_prompt_text if @conversation
     state
   end
 
@@ -126,6 +127,17 @@ class Captain::Assistant::AgentRunnerService
     state[:contact] = slice_attrs(@conversation.contact, CONTACT_STATE_ATTRIBUTES) if @conversation.contact
     state[:campaign] = slice_attrs(@conversation.campaign, CAMPAIGN_STATE_ATTRIBUTES) if @conversation.campaign
     state[:contact_inbox] = slice_attrs(@conversation.contact_inbox, CONTACT_INBOX_STATE_ATTRIBUTES) if @conversation.contact_inbox
+  end
+
+  def traffic_source_prompt_text
+    source_id = @conversation.contact_inbox&.source_id
+    return if source_id.blank?
+
+    TrafficSourcePrompt.for_source(
+      account_id: @assistant.account_id,
+      inbox_id: @conversation.inbox_id,
+      source_id: source_id
+    ).pick(:prompt_text)
   end
 
   def slice_attrs(record, keys)
