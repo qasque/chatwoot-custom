@@ -640,6 +640,10 @@
       "CSAT": "CSAT"
     },
     "AI_PROMPTS": {
+      "MODE_LABEL": "Prompt mode",
+      "MODE_HELP": "Use basic mode for one prompt per inbox, or advanced mode for source-specific prompts.",
+      "SWITCH_ADVANCED": "Switch to advanced mode",
+      "SWITCH_BASIC": "Switch to basic mode",
       "SOURCE_ID_LABEL": "Traffic source ID",
       "SOURCE_ID_HELP": "Set source_id and manage its AI prompt file.",
       "LOAD": "Load prompt",
@@ -647,6 +651,7 @@
       "UPLOAD_HELP": "Allowed formats: .txt, .doc, .docx, .pdf. Upload replaces existing prompt for this source.",
       "UPLOAD_ACTION": "Upload prompt",
       "DOWNLOAD_ACTION": "Download prompt",
+      "DELETE_ACTION": "Delete prompt",
       "STATUS_TITLE": "Prompt status",
       "LOADING": "Loading...",
       "NO_PROMPT": "Prompt is not loaded for this source. AI assistant is inactive and conversation will be handed off to operator.",
@@ -654,6 +659,7 @@
       "UPDATED_AT": "Last updated",
       "KNOWN_SOURCES": "Known sources",
       "UPLOAD_SUCCESS": "Prompt uploaded successfully",
+      "DELETE_SUCCESS": "Prompt deleted successfully",
       "ERRORS": {
         "SOURCE_REQUIRED": "source_id is required",
         "FILE_REQUIRED": "Please choose a file to upload",

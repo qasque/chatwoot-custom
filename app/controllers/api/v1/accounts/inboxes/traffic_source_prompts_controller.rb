@@ -46,6 +46,14 @@ class Api::V1::Accounts::Inboxes::TrafficSourcePromptsController < Api::V1::Acco
     )
   end
 
+  def destroy
+    prompt = find_prompt
+    return render_not_found if prompt.blank?
+
+    prompt.destroy!
+    head :no_content
+  end
+
   private
 
   def fetch_inbox

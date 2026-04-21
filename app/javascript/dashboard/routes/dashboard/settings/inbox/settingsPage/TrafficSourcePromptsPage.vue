@@ -20,16 +20,19 @@ export default {
   data() {
     return {
       sourceId: '',
+      isAdvancedMode: false,
       sourceOptions: [],
       selectedFile: null,
       currentPrompt: null,
       isLoadingPrompt: false,
       isUploading: false,
       isDownloading: false,
+      isDeleting: false,
     };
   },
   mounted() {
     this.fetchSourceOptions();
+    this.loadCurrentPrompt();
   },
   methods: {
     displaySourceLabel(sourceId) {
@@ -37,6 +40,11 @@ export default {
     },
     normalizedSourceId() {
       return this.sourceId.trim() || null;
+    },
+    toggleMode() {
+      this.isAdvancedMode = !this.isAdvancedMode;
+      if (!this.isAdvancedMode) this.sourceId = '';
+      this.loadCurrentPrompt();
     },
     async fetchSourceOptions() {
       try {
@@ -127,6 +135,19 @@ export default {
         this.isDownloading = false;
       }
     },
+    async deletePrompt() {
+      this.isDeleting = true;
+      try {
+        await TrafficSourcePromptsAPI.remove(this.inbox.id, this.normalizedSourceId());
+        this.currentPrompt = null;
+        useAlert(this.$t('INBOX_MGMT.AI_PROMPTS.DELETE_SUCCESS'));
+        this.fetchSourceOptions();
+      } catch (error) {
+        useAlert(error?.response?.data?.error || error.message);
+      } finally {
+        this.isDeleting = false;
+      }
+    },
     selectSource(sourceId) {
       this.sourceId = sourceId;
       this.loadCurrentPrompt();
@@ -142,6 +163,21 @@ export default {
 <template>
   <div class="max-w-4xl mx-6 flex flex-col gap-6">
     <SettingsFieldSection
+      :label="$t('INBOX_MGMT.AI_PROMPTS.MODE_LABEL')"
+      :help-text="$t('INBOX_MGMT.AI_PROMPTS.MODE_HELP')"
+    >
+      <div class="flex gap-2">
+        <NextButton
+          sm
+          ghost
+          :label="isAdvancedMode ? $t('INBOX_MGMT.AI_PROMPTS.SWITCH_BASIC') : $t('INBOX_MGMT.AI_PROMPTS.SWITCH_ADVANCED')"
+          @click="toggleMode"
+        />
+      </div>
+    </SettingsFieldSection>
+
+    <SettingsFieldSection
+      v-if="isAdvancedMode"
       :label="$t('INBOX_MGMT.AI_PROMPTS.SOURCE_ID_LABEL')"
       :help-text="$t('INBOX_MGMT.AI_PROMPTS.SOURCE_ID_HELP')"
     >
@@ -175,6 +211,14 @@ export default {
           :is-loading="isDownloading"
           :label="$t('INBOX_MGMT.AI_PROMPTS.DOWNLOAD_ACTION')"
           @click="downloadPrompt"
+        />
+        <NextButton
+          sm
+          ghost
+          class="!text-ruby-09"
+          :is-loading="isDeleting"
+          :label="$t('INBOX_MGMT.AI_PROMPTS.DELETE_ACTION')"
+          @click="deletePrompt"
         />
       </div>
     </SettingsFieldSection>

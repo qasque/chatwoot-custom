@@ -244,6 +244,7 @@ Rails.application.routes.draw do
               collection do
                 get :current
                 get :download
+                delete :destroy
               end
             end
           end

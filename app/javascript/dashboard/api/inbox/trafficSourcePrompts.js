@@ -37,6 +37,12 @@ class TrafficSourcePromptsApi extends ApiClient {
       responseType: 'blob',
     });
   }
+
+  remove(inboxId, sourceId) {
+    const params = {};
+    if (sourceId) params.source_id = sourceId;
+    return axios.delete(this.basePath(inboxId), { params });
+  }
 }
 
 export default new TrafficSourcePromptsApi();
