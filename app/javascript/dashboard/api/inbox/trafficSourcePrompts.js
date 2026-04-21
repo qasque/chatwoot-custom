@@ -15,21 +15,25 @@ class TrafficSourcePromptsApi extends ApiClient {
   }
 
   getCurrent(inboxId, sourceId) {
+    const params = {};
+    if (sourceId) params.source_id = sourceId;
     return axios.get(`${this.basePath(inboxId)}/current`, {
-      params: { source_id: sourceId },
+      params,
     });
   }
 
   upload(inboxId, sourceId, file) {
     const formData = new FormData();
-    formData.append('source_id', sourceId);
+    if (sourceId) formData.append('source_id', sourceId);
     formData.append('file', file);
     return axios.post(this.basePath(inboxId), formData);
   }
 
   download(inboxId, sourceId) {
+    const params = {};
+    if (sourceId) params.source_id = sourceId;
     return axios.get(`${this.basePath(inboxId)}/download`, {
-      params: { source_id: sourceId },
+      params,
       responseType: 'blob',
     });
   }

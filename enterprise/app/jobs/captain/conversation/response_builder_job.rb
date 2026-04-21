@@ -9,7 +9,6 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     @assistant = assistant
 
     return unless conversation_pending?
-    return handoff_without_prompt! if source_prompt_missing?
 
     Current.executed_by = @assistant
 
@@ -156,21 +155,4 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     status == 'pending' || status == Conversation.statuses[:pending]
   end
 
-  def source_prompt_missing?
-    source_id = @conversation.contact_inbox&.source_id
-    return false if source_id.blank?
-
-    TrafficSourcePrompt.for_source(
-      account_id: @assistant.account_id,
-      inbox_id: @conversation.inbox_id,
-      source_id: source_id
-    ).blank?
-  end
-
-  def handoff_without_prompt!
-    Rails.logger.info(
-      "[CAPTAIN][ResponseBuilderJob] No source prompt for inbox=#{@conversation.inbox_id} source_id=#{@conversation.contact_inbox&.source_id}; handing off"
-    )
-    process_action('handoff')
-  end
 end

@@ -87,12 +87,10 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
     return nil unless @conversation
 
     source_id = @conversation.contact_inbox&.source_id
-    return nil if source_id.blank?
-
-    TrafficSourcePrompt.for_source(
+    TrafficSourcePrompt.prompt_text_for(
       account_id: @assistant.account_id,
       inbox_id: @conversation.inbox_id,
       source_id: source_id
-    ).pick(:prompt_text)
+    )
   end
 end

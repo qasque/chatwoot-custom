@@ -32,6 +32,12 @@ export default {
     this.fetchSourceOptions();
   },
   methods: {
+    displaySourceLabel(sourceId) {
+      return sourceId || 'Default inbox prompt';
+    },
+    normalizedSourceId() {
+      return this.sourceId.trim() || null;
+    },
     async fetchSourceOptions() {
       try {
         const response = await TrafficSourcePromptsAPI.list(this.inbox.id);
@@ -58,17 +64,12 @@ export default {
       this.selectedFile = file;
     },
     async loadCurrentPrompt() {
-      if (!this.sourceId.trim()) {
-        useAlert(this.$t('INBOX_MGMT.AI_PROMPTS.ERRORS.SOURCE_REQUIRED'));
-        return;
-      }
-
       this.isLoadingPrompt = true;
       this.currentPrompt = null;
       try {
         const response = await TrafficSourcePromptsAPI.getCurrent(
           this.inbox.id,
-          this.sourceId.trim()
+          this.normalizedSourceId()
         );
         this.currentPrompt = response.data.payload;
       } catch (error) {
@@ -83,10 +84,6 @@ export default {
       }
     },
     async uploadPrompt() {
-      if (!this.sourceId.trim()) {
-        useAlert(this.$t('INBOX_MGMT.AI_PROMPTS.ERRORS.SOURCE_REQUIRED'));
-        return;
-      }
       if (!this.selectedFile) {
         useAlert(this.$t('INBOX_MGMT.AI_PROMPTS.ERRORS.FILE_REQUIRED'));
         return;
@@ -96,7 +93,7 @@ export default {
       try {
         const response = await TrafficSourcePromptsAPI.upload(
           this.inbox.id,
-          this.sourceId.trim(),
+          this.normalizedSourceId(),
           this.selectedFile
         );
         this.currentPrompt = response.data.payload;
@@ -111,22 +108,17 @@ export default {
       }
     },
     async downloadPrompt() {
-      if (!this.sourceId.trim()) {
-        useAlert(this.$t('INBOX_MGMT.AI_PROMPTS.ERRORS.SOURCE_REQUIRED'));
-        return;
-      }
-
       this.isDownloading = true;
       try {
         const response = await TrafficSourcePromptsAPI.download(
           this.inbox.id,
-          this.sourceId.trim()
+          this.normalizedSourceId()
         );
         const blob = new Blob([response.data], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${this.sourceId.trim()}-prompt.txt`;
+        link.download = `${this.normalizedSourceId() || 'inbox-default'}-prompt.txt`;
         link.click();
         URL.revokeObjectURL(url);
       } catch (error) {
@@ -218,7 +210,7 @@ export default {
           class="text-left px-3 py-2 rounded-lg bg-n-alpha-1 hover:bg-n-alpha-2 transition-colors"
           @click="selectSource(item.sourceId)"
         >
-          <span class="font-medium">{{ item.sourceId }}</span>
+          <span class="font-medium">{{ displaySourceLabel(item.sourceId) }}</span>
           <span class="text-n-slate-11 ml-2">({{ item.fileName }}, {{ formatDate(item.updatedAt) }})</span>
         </button>
       </div>

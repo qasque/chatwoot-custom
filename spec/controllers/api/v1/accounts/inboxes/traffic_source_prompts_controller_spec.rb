@@ -34,5 +34,30 @@ RSpec.describe 'Api::V1::Accounts::Inboxes::TrafficSourcePrompts', type: :reques
       expect(prompt.prompt_text).to include('hello')
       expect(prompt.file_name).to eq('valid.txt')
     end
+
+    it 'creates default inbox prompt when source_id is omitted' do
+      file = fixture_file_upload('files/valid.txt', 'text/plain')
+
+      post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/traffic_source_prompts",
+           params: { file: file },
+           headers: admin.create_new_auth_token
+
+      expect(response).to have_http_status(:ok)
+      prompt = TrafficSourcePrompt.find_by!(inbox_id: inbox.id, source_id: nil)
+      expect(prompt.prompt_text).to include('hello')
+    end
+  end
+
+  describe 'GET /api/v1/accounts/:account_id/inboxes/:inbox_id/traffic_source_prompts/current without source' do
+    it 'returns default inbox prompt' do
+      create(:traffic_source_prompt, account: account, inbox: inbox, source_id: nil, file_name: 'default.txt')
+
+      get "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/traffic_source_prompts/current",
+          headers: admin.create_new_auth_token,
+          as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body.dig('payload', 'file_name')).to eq('default.txt')
+    end
   end
 end

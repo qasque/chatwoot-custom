@@ -131,13 +131,11 @@ class Captain::Assistant::AgentRunnerService
 
   def traffic_source_prompt_text
     source_id = @conversation.contact_inbox&.source_id
-    return if source_id.blank?
-
-    TrafficSourcePrompt.for_source(
+    TrafficSourcePrompt.prompt_text_for(
       account_id: @assistant.account_id,
       inbox_id: @conversation.inbox_id,
       source_id: source_id
-    ).pick(:prompt_text)
+    )
   end
 
   def slice_attrs(record, keys)
