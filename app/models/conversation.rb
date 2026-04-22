@@ -103,6 +103,7 @@ class Conversation < ApplicationRecord
   belongs_to :assignee_agent_bot, class_name: 'AgentBot', optional: true
   belongs_to :contact
   belongs_to :contact_inbox
+  belongs_to :support_topic, optional: true
   belongs_to :team, optional: true
   belongs_to :campaign, optional: true
 

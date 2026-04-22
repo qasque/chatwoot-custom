@@ -125,8 +125,12 @@ class Support::DailyTelegramReportMetrics
   end
 
   def top_topics(conversations)
-    names = conversations.pluck(:custom_attributes, :cached_label_list).map do |custom_attributes, cached_labels|
-      topic_from(custom_attributes, cached_labels)
+    names = conversations.left_outer_joins(:support_topic).pluck(
+      'support_topics.name',
+      :custom_attributes,
+      :cached_label_list
+    ).map do |topic_name, custom_attributes, cached_labels|
+      topic_name.presence || topic_from(custom_attributes, cached_labels)
     end
 
     names.tally.sort_by { |_k, v| -v }.first(5)

@@ -57,6 +57,33 @@ RSpec.describe Support::DailyTelegramReportBuilder do
       expect(text).to include('Оплата')
     end
 
+    it 'prefers support topic name and keeps fallback for uncategorized conversations' do
+      support_topic = create(:support_topic, account: account, name: 'Не подключается VPN')
+      create(
+        :conversation,
+        account: account,
+        inbox: inbox,
+        created_at: period_start + 1.hour,
+        support_topic: support_topic
+      )
+      create(
+        :conversation,
+        account: account,
+        inbox: inbox,
+        created_at: period_start + 2.hours,
+        custom_attributes: { 'topic' => 'Оплата' }
+      )
+
+      text = described_class.new(
+        account: account,
+        period_start: period_start,
+        period_end: period_end
+      ).perform
+
+      expect(text).to include('Не подключается VPN')
+      expect(text).to include('Оплата')
+    end
+
     it 'counts operator_resolved from reporting events excluding bot-only resolutions' do
       user = create(:user, account: account)
       conv_bot = create(:conversation, account: account, inbox: inbox, created_at: period_start + 30.minutes)

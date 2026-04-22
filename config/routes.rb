@@ -54,6 +54,7 @@ Rails.application.routes.draw do
             resource :contact_merge, only: [:create]
           end
           resource :bulk_actions, only: [:create]
+          resources :support_topics, only: [:index]
           resource :outage_broadcast, only: [:create], controller: 'outage_broadcast'
           resource :telegram_report_setting, only: %i[show update], controller: 'telegram_report_settings' do
             post :send_now, on: :member
@@ -145,6 +146,7 @@ Rails.application.routes.draw do
                   post :retry
                 end
               end
+              resource :topic_classification, only: [:show, :create]
               resources :assignments, only: [:create]
               resources :labels, only: [:create, :index]
               resource :participants, only: [:show, :create, :update, :destroy]
