@@ -26,7 +26,8 @@
   enabled: false
 - name: disable_branding
   display_name: Disable Branding
-  enabled: false
+  # On by default for self-host: hide the Web Widget footer ("Powered by Chatwoot").
+  enabled: true
   premium: true
 - name: email_continuity_on_api_channel
   display_name: Email Continuity on API Channel
