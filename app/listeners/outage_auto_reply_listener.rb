@@ -15,8 +15,8 @@ class OutageAutoReplyListener < BaseListener
 
     agent_id = cfg['agent_id'].to_i
     return if agent_id.zero?
-    return unless eligible_customer_turn?(message)
-
+    # Каждое новое входящее в выбранных инбоксах; дубликат на одно событие отсекает
+    # OutageAutoReplyJob#duplicate_outage_reply?
     OutageAutoReplyJob.perform_later(message.id, agent_id, content)
   end
 
@@ -53,13 +53,4 @@ class OutageAutoReplyListener < BaseListener
     inbox_ids.empty? || inbox_ids.include?(message.inbox_id)
   end
 
-  def eligible_customer_turn?(message)
-    conv = message.conversation
-    prior = conv.messages.incoming.where(private: false).where('messages.id < ?', message.id)
-    return true if prior.none?
-
-    attrs = message.additional_attributes || {}
-    attrs[Message::REOPENED_FROM_RESOLVED_KEY] == true ||
-      attrs[Message::REOPENED_FROM_RESOLVED_KEY].to_s == 'true'
-  end
 end

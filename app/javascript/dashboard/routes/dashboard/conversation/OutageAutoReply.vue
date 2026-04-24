@@ -19,6 +19,12 @@ const selectedInboxIds = ref([]);
 const isLoading = ref(false);
 const isSaving = ref(false);
 
+/** API/i18n иногда отдают null — `.trim()` на null бросает в UI */
+function asOutageText(raw) {
+  if (raw != null && String(raw).trim() !== '') return String(raw);
+  return String(t('OUTAGE_AUTO_REPLY.DEFAULT_MESSAGE') || '');
+}
+
 const sortedInboxes = computed(() =>
   [...(inboxes.value || [])].sort((a, b) =>
     (a.name || '').localeCompare(b.name || '', undefined, {
@@ -47,7 +53,7 @@ async function load() {
   try {
     const { data } = await OutageAutoReplyApi.get();
     enabled.value = !!data.enabled;
-    messageBody.value = data.message || t('OUTAGE_AUTO_REPLY.DEFAULT_MESSAGE');
+    messageBody.value = asOutageText(data?.message);
     selectedInboxIds.value = Array.isArray(data.inbox_ids)
       ? [...data.inbox_ids]
       : [];
@@ -64,7 +70,8 @@ async function save() {
       useAlert(t('OUTAGE_AUTO_REPLY.VALIDATION_INBOXES'));
       return;
     }
-    if (!messageBody.value.trim()) {
+    const userMsg = String(messageBody.value ?? '').trim();
+    if (!userMsg) {
       useAlert(t('OUTAGE_AUTO_REPLY.VALIDATION_MESSAGE'));
       return;
     }
@@ -72,11 +79,17 @@ async function save() {
 
   isSaving.value = true;
   try {
-    await OutageAutoReplyApi.update({
+    const res = await OutageAutoReplyApi.update({
       enabled: enabled.value,
-      message: messageBody.value.trim(),
+      message: String(messageBody.value ?? '').trim(),
       inbox_ids: selectedInboxIds.value,
     });
+    const data = res.data || {};
+    enabled.value = !!data.enabled;
+    messageBody.value = asOutageText(data?.message);
+    selectedInboxIds.value = Array.isArray(data.inbox_ids)
+      ? [...data.inbox_ids]
+      : [];
     useAlert(t('OUTAGE_AUTO_REPLY.SAVE_SUCCESS'));
   } catch (e) {
     const fromApi = e?.response?.data?.error;
