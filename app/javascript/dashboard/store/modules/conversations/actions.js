@@ -7,6 +7,7 @@ import {
   buildConversationList,
   isOnMentionsView,
   isOnUnattendedView,
+  isOnAIProcessingView,
   isOnFoldersView,
 } from './helpers/actionHelpers';
 import messageReadActions from './actions/messageReadActions';
@@ -376,6 +377,7 @@ const actions = {
       !isOnFoldersView(rootState) &&
       !isOnMentionsView(rootState) &&
       !isOnUnattendedView(rootState) &&
+      !isOnAIProcessingView(rootState) &&
       isMatchingInboxFilter
     ) {
       commit(types.ADD_CONVERSATION, conversation);

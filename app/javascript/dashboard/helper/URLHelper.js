@@ -30,6 +30,8 @@ export const conversationUrl = ({
     url = `accounts/${accountId}/unattended/conversations/${id}`;
   } else if (conversationType === 'tasks') {
     url = `accounts/${accountId}/tasks/conversations/${id}`;
+  } else if (conversationType === 'ai_processing') {
+    url = `accounts/${accountId}/ai-processing/conversations/${id}`;
   }
   if (noteFilter && conversationType !== 'tasks') {
     return `${url}?${new URLSearchParams({ noteFilter })}`;
@@ -62,6 +64,7 @@ export const conversationListPageURL = ({
     const urlMap = {
       mention: 'mentions/conversations',
       unattended: 'unattended/conversations',
+      ai_processing: 'ai-processing/conversations',
     };
     url = `accounts/${accountId}/${urlMap[conversationType]}`;
   }

@@ -60,6 +60,7 @@ import QuickTaskModal from 'dashboard/components/tasks/QuickTaskModal.vue';
 import {
   isOnMentionsView,
   isOnUnattendedView,
+  isOnAIProcessingView,
 } from '../store/modules/conversations/helpers/actionHelpers';
 import {
   getUserPermissions,
@@ -117,6 +118,7 @@ const mineChatsList = useMapGetter('getMineChats');
 const allChatList = useMapGetter('getAllStatusChats');
 const unAssignedChatsList = useMapGetter('getUnAssignedChats');
 const tasksChatsList = useMapGetter('getTasksChats');
+const aiProcessingChatsList = useMapGetter('getAIProcessingChats');
 const chatListLoading = useMapGetter('getChatListLoadingStatus');
 const activeInbox = useMapGetter('getSelectedInbox');
 const conversationStats = useMapGetter('conversationStats/getStats');
@@ -226,6 +228,18 @@ const isTasksRoute = computed(
     route.name === 'conversation_through_tasks'
 );
 
+const isAIProcessingRoute = computed(() => isOnAIProcessingView({ route }));
+
+const conversationAssigneeType = computed(() => {
+  if (isAIProcessingRoute.value) {
+    return wootConstants.ASSIGNEE_TYPE.UNASSIGNED;
+  }
+  if (isTasksRoute.value) {
+    return wootConstants.ASSIGNEE_TYPE.ALL;
+  }
+  return activeAssigneeTab.value;
+});
+
 const showAssigneeInConversationCard = computed(() => {
   return (
     hasAppliedFiltersOrActiveFolders.value ||
@@ -262,8 +276,8 @@ const conversationCustomAttributes = useFunctionGetter(
 const activeAssigneeTabCount = computed(() => {
   const count = assigneeTabItems.value.find(
     item => item.key === activeAssigneeTab.value
-  ).count;
-  return count;
+  )?.count;
+  return count || 0;
 });
 
 const hasTaskPrivateNote = conversation => {
@@ -297,15 +311,20 @@ const conversationListPagination = computed(() => {
 });
 
 const conversationFilters = computed(() => {
+  const isAIProcessing = isAIProcessingRoute.value;
   return {
     inboxId: props.conversationInbox ? props.conversationInbox : undefined,
-    assigneeType: isTasksRoute.value ? 'all' : activeAssigneeTab.value,
-    status: activeStatus.value,
+    assigneeType: conversationAssigneeType.value,
+    status: isAIProcessing
+      ? wootConstants.STATUS_TYPE.PENDING
+      : activeStatus.value,
     sortBy: activeSortBy.value,
     page: conversationListPagination.value,
     labels: props.label ? [props.label] : undefined,
     teamId: props.teamId || undefined,
-    conversationType: props.conversationType || undefined,
+    conversationType: isAIProcessing
+      ? undefined
+      : props.conversationType || undefined,
   };
 });
 
@@ -338,6 +357,9 @@ const pageTitle = computed(() => {
   if (props.conversationType === 'unattended') {
     return t('CHAT_LIST.UNATTENDED_HEADING');
   }
+  if (isAIProcessingRoute.value) {
+    return t('CHAT_LIST.AI_PROCESSING_HEADING');
+  }
   if (noteFilterMode.value === 'task') {
     return t('SIDEBAR.TASKS_MENU');
   }
@@ -357,6 +379,8 @@ const conversationList = computed(() => {
     const filters = conversationFilters.value;
     if (isTasksRoute.value) {
       localConversationList = [...tasksChatsList.value(filters)];
+    } else if (isAIProcessingRoute.value) {
+      localConversationList = [...aiProcessingChatsList.value(filters)];
     } else if (activeAssigneeTab.value === 'me') {
       localConversationList = [...mineChatsList.value(filters)];
     } else if (activeAssigneeTab.value === 'unassigned') {
@@ -418,6 +442,12 @@ const uniqueInboxes = computed(() => {
 
 // ---------------------- Methods -----------------------
 function setFiltersFromUISettings() {
+  if (isAIProcessingRoute.value) {
+    activeStatus.value = wootConstants.STATUS_TYPE.PENDING;
+    activeAssigneeTab.value = wootConstants.ASSIGNEE_TYPE.UNASSIGNED;
+    return;
+  }
+
   const { conversations_filter_by: filterBy = {} } = uiSettings.value;
   const { status, order_by: orderBy } = filterBy;
   activeStatus.value = status || wootConstants.STATUS_TYPE.OPEN;
@@ -662,6 +692,10 @@ function updateAssigneeTab(selectedTab) {
 
 function onBasicFilterChange(value, type) {
   if (type === 'status') {
+    if (isAIProcessingRoute.value) {
+      activeStatus.value = wootConstants.STATUS_TYPE.PENDING;
+      return;
+    }
     activeStatus.value = value;
   } else {
     activeSortBy.value = value;
@@ -698,6 +732,8 @@ function redirectToConversationList() {
     conversationType = 'mention';
   } else if (isOnUnattendedView({ route: { name } })) {
     conversationType = 'unattended';
+  } else if (isOnAIProcessingView({ route: { name } })) {
+    conversationType = 'ai_processing';
   }
   router.push(
     conversationListPageURL({
@@ -855,8 +891,8 @@ useEmitter('fetch_conversation_stats', () => {
 });
 
 onMounted(() => {
-  store.dispatch('setChatListFilters', conversationFilters.value);
   setFiltersFromUISettings();
+  store.dispatch('setChatListFilters', conversationFilters.value);
   store.dispatch('setChatStatusFilter', activeStatus.value);
   store.dispatch('setChatSortFilter', activeSortBy.value);
   resetAndFetchData();
@@ -916,7 +952,10 @@ watch(
 );
 watch(
   computed(() => props.conversationType),
-  () => resetAndFetchData()
+  () => {
+    setFiltersFromUISettings();
+    resetAndFetchData();
+  }
 );
 
 watch(activeFolder, (newVal, oldVal) => {
@@ -985,7 +1024,11 @@ watch(conversationFilters, (newVal, oldVal) => {
     />
 
     <ChatTypeTabs
-      v-if="!hasAppliedFiltersOrActiveFolders && !isTasksRoute"
+      v-if="
+        !hasAppliedFiltersOrActiveFolders &&
+        !isTasksRoute &&
+        !isAIProcessingRoute
+      "
       :items="assigneeTabItems"
       :active-tab="activeAssigneeTab"
       is-compact

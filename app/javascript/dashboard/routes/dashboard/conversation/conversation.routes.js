@@ -41,6 +41,29 @@ export default {
       }),
     },
     {
+      path: frontendURL('accounts/:accountId/ai-processing/conversations'),
+      name: 'conversation_ai_processing',
+      meta: {
+        permissions: CONVERSATION_PERMISSIONS,
+      },
+      component: ConversationView,
+      props: () => ({ conversationType: 'ai_processing' }),
+    },
+    {
+      path: frontendURL(
+        'accounts/:accountId/ai-processing/conversations/:conversationId'
+      ),
+      name: 'conversation_through_ai_processing',
+      meta: {
+        permissions: CONVERSATION_PERMISSIONS,
+      },
+      component: ConversationView,
+      props: route => ({
+        conversationId: route.params.conversationId,
+        conversationType: 'ai_processing',
+      }),
+    },
+    {
       path: frontendURL('accounts/:accountId/outage-auto-reply'),
       name: 'outage_auto_reply',
       meta: {

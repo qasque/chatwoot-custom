@@ -30,6 +30,14 @@ export const isOnUnattendedView = ({ route: { name: routeName } }) => {
   return UNATTENDED_ROUTES.includes(routeName);
 };
 
+export const isOnAIProcessingView = ({ route: { name: routeName } }) => {
+  const AI_PROCESSING_ROUTES = [
+    'conversation_ai_processing',
+    'conversation_through_ai_processing',
+  ];
+  return AI_PROCESSING_ROUTES.includes(routeName);
+};
+
 export const isOnFoldersView = ({ route: { name: routeName } }) => {
   const FOLDER_ROUTES = [
     'folder_conversations',

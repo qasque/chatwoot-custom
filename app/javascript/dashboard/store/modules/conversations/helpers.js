@@ -35,6 +35,26 @@ export const filterByUnattended = (
     : shouldFilter;
 };
 
+export const isAIProcessingConversation = conversation => {
+  const assignee = conversation?.meta?.assignee;
+  const customAttributes = conversation?.custom_attributes || {};
+  return (
+    conversation?.status === 'pending' &&
+    !assignee &&
+    customAttributes.ai_handoff !== true
+  );
+};
+
+export const filterByAIProcessing = (
+  shouldFilter,
+  conversationType,
+  conversation
+) => {
+  return conversationType === 'ai_processing'
+    ? isAIProcessingConversation(conversation) && shouldFilter
+    : shouldFilter;
+};
+
 export const applyPageFilters = (conversation, filters) => {
   const { inboxId, status, labels = [], teamId, conversationType } = filters;
   const {
@@ -57,6 +77,11 @@ export const applyPageFilters = (conversation, filters) => {
     conversationType,
     firstReplyOn,
     waitingSince
+  );
+  shouldFilter = filterByAIProcessing(
+    shouldFilter,
+    conversationType,
+    conversation
   );
 
   return shouldFilter;

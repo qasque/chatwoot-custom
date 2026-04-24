@@ -259,6 +259,16 @@ const menuItems = computed(() => {
           to: accountScopedRoute('conversation_unattended'),
         },
         {
+          name: 'AIProcessing',
+          label: t('SIDEBAR.AI_PROCESSING_CONVERSATIONS'),
+          icon: 'i-lucide-bot',
+          activeOn: [
+            'conversation_ai_processing',
+            'conversation_through_ai_processing',
+          ],
+          to: accountScopedRoute('conversation_ai_processing'),
+        },
+        {
           name: 'QuickReplies',
           label: t('SIDEBAR.QUICK_REPLIES_MENU'),
           activeOn: ['canned_list'],
