@@ -1034,12 +1034,6 @@ export default {
         this.toggleEmojiPicker();
       }
     },
-    onTypingOn() {
-      this.toggleTyping('on');
-    },
-    onTypingOff() {
-      this.toggleTyping('off');
-    },
     onBlur() {
       this.isFocused = false;
       this.saveDraft(this.conversationIdByRoute, this.replyType);
@@ -1060,20 +1054,6 @@ export default {
         isRecordedAudio: true,
       };
       return file && this.onFileUpload(autoRecordedFile);
-    },
-    toggleTyping(status) {
-      const conversationId = this.currentChat.id;
-      const isPrivate = this.isPrivate;
-
-      if (!conversationId) {
-        return;
-      }
-
-      this.$store.dispatch('conversationTypingStatus/toggleTyping', {
-        status,
-        conversationId,
-        isPrivate,
-      });
     },
     attachFile({ blob, file }) {
       const reader = new FileReader();
@@ -1374,8 +1354,6 @@ export default {
           allow-signature
           :channel-type="channelType"
           :medium="inbox.medium"
-          @typing-off="onTypingOff"
-          @typing-on="onTypingOn"
           @focus="onFocus"
           @blur="onBlur"
           @toggle-user-mention="toggleUserMention"

@@ -110,15 +110,6 @@ export default {
     emojiOnClick(emoji) {
       this.userInput = `${this.userInput}${emoji} `;
     },
-    onTypingOff() {
-      this.toggleTyping('off');
-    },
-    onTypingOn() {
-      this.toggleTyping('on');
-    },
-    toggleTyping(typingStatus) {
-      this.$store.dispatch('conversation/toggleUserTyping', { typingStatus });
-    },
     focusInput() {
       this.$refs.chatInput.focus();
     },
@@ -143,8 +134,6 @@ export default {
       :aria-label="$t('CHAT_PLACEHOLDER')"
       :placeholder="$t('CHAT_PLACEHOLDER')"
       class="user-message-input reset-base"
-      @typing-off="onTypingOff"
-      @typing-on="onTypingOn"
       @focus="onFocus"
       @blur="onBlur"
     />
